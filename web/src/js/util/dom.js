@@ -68,6 +68,11 @@ const on = (el, eventName, selector, cb) =>
 const get = (el, attr, defaultValue) => el.getAttribute(attr) || defaultValue;
 const set = (el, attr, value) => el.setAttribute(attr, value);
 
+const append = (parent, children) => {
+	children.forEach(el => parent.appendChild(el));
+	return parent;
+};
+
 module.exports = {
 	listToArray,
 	clear,
@@ -76,5 +81,6 @@ module.exports = {
 	create,
 	on,
 	get,
-	set
+	set,
+	append
 };

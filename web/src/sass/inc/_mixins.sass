@@ -1,0 +1,27 @@
+@mixin no-margin-padding
+	margin: 0px
+	padding: 0px
+
+@mixin header-height($h)
+	display: inline-block
+	height: $h
+	line-height: $h
+
+@mixin clear-form-control
+	+no-margin-padding
+	border: 0px
+	outline: none
+	border-radius: 0px
+	border-image: none
+	box-sizing: border-box
+	background: inherit
+	font-size: inherit
+	font-family: inherit
+	font-weight: inherit
+	&:focus,
+	&:active,
+	&::-moz-focus-inner,
+	&:-moz-focusring,
+	&::-moz-focus-outer
+		border: 0
+		outline: none

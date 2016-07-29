@@ -2198,7 +2198,13 @@ html {
   box-sizing: inherit; }
 
 body {
-  font-family: 'Open Sans', Helvetica, Arial, sans-serif; }
+  font-family: "Open Sans", Helvetica, Arial, sans-serif; }
+
+table {
+  font-size: 14px; }
+  table th, table td {
+    padding: 5px;
+    border: 1px solid #aaa; }
 
 #ui #left-pane {
   position: absolute;
@@ -2208,6 +2214,38 @@ body {
   width: 240px;
   background: #ccc; }
   #ui #left-pane > * {
-    width: 100%; }
-  #ui #left-pane h1 {
+    width: 100%;
+    margin: 10px 0px;
     padding: 0px 10px; }
+  #ui #left-pane hr {
+    margin: 0px;
+    padding: 0px; }
+  #ui #left-pane h1 {
+    font-size: 24px; }
+  #ui #left-pane h2 {
+    font-size: 18px; }
+  #ui #left-pane #db-select {
+    cursor: pointer; }
+  #ui #left-pane #collections {
+    padding: 5px 0px;
+    background: #eee;
+    list-style-type: none; }
+    #ui #left-pane #collections li {
+      margin: 5px 0px;
+      padding: 0px 10px;
+      cursor: pointer; }
+      #ui #left-pane #collections li:hover, #ui #left-pane #collections li.active {
+        background: #aaa; }
+
+#ui #content {
+  position: absolute;
+  top: 0px;
+  left: 240px;
+  bottom: 0px;
+  right: 0px;
+  padding: 20px;
+  overflow-y: scroll; }
+  #ui #content > * {
+    width: 100%; }
+  #ui #content #results {
+    margin-top: 20px; }

@@ -14063,28 +14063,61 @@ var _dom2 = _interopRequireDefault(_dom);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var dbSelectEl = document.querySelector('#db-select');
+var collectionsEl = document.querySelector('#collections');
+
+var dbNameEl = document.querySelector('#db-name');
+var collectionNameEl = document.querySelector('#collection-name');
+
+// const queryEl = document.querySelector('#query');
+var resultsEl = document.querySelector('#results');
+
 _request2.default.get('/api/dbs').observe().map(function (res) {
 	return res.body;
 }).subscribe(function (dbs) {
 	return dbs.forEach(function (dbName) {
-		return document.querySelector('#db-select').appendChild(_dom2.default.create('option', {
+		return dbSelectEl.appendChild(_dom2.default.create('option', {
 			textContent: dbName,
 			value: dbName
 		}));
 	});
 });
 
-_dom2.default.on(document.querySelector('#db-select'), 'change', function (ev) {
-	console.log(ev.target.value);
-	_dom2.default.clear(document.querySelector('#collections'));
-	_request2.default.get('/api/dbs/' + ev.target.value).observe().map(function (res) {
+_dom2.default.on(dbSelectEl, 'change', function (ev) {
+	_dom2.default.clear(collectionsEl);
+	dbNameEl.textContent = dbSelectEl.value;
+	collectionNameEl.textContent = '';
+	_dom2.default.clear(resultsEl);
+	_request2.default.get('/api/dbs/' + dbSelectEl.value).observe().map(function (res) {
 		return res.body;
 	}).subscribe(function (collections) {
 		return collections.forEach(function (colName) {
-			return document.querySelector('#collections').appendChild(_dom2.default.create('li', {
+			return collectionsEl.appendChild(_dom2.default.create('li', {
 				textContent: colName
 			}));
 		});
+	});
+});
+
+_dom2.default.on(collectionsEl, 'click', 'li', function (ev) {
+	collectionNameEl.textContent = ev.target.textContent;
+	_dom2.default.find(collectionsEl, 'li').forEach(function (liEl) {
+		return liEl.classList.remove('active');
+	});
+	ev.target.classList.add('active');
+	_dom2.default.clear(resultsEl);
+	_request2.default.get('/api/dbs/' + dbSelectEl.value + '/' + ev.target.textContent).observe().map(function (res) {
+		return res.body;
+	}).subscribe(function (data) {
+		return _dom2.default.append(resultsEl, [_dom2.default.append(_dom2.default.create('thead'), [_dom2.default.append(_dom2.default.create('tr'), Object.keys(data.reduce(function (m, o) {
+			return Object.assign(m, o);
+		}, {})).map(function (field) {
+			return _dom2.default.create('th', { textContent: field });
+		}))]), _dom2.default.append(_dom2.default.create('tbody'), data.map(function (doc) {
+			return _dom2.default.append(_dom2.default.create('tr'), Object.keys(doc).map(function (field) {
+				return _dom2.default.create('td', { textContent: doc[field] });
+			}));
+		}))]);
 	});
 });
 
@@ -14176,6 +14209,13 @@ var set = function set(el, attr, value) {
 	return el.setAttribute(attr, value);
 };
 
+var append = function append(parent, children) {
+	children.forEach(function (el) {
+		return parent.appendChild(el);
+	});
+	return parent;
+};
+
 module.exports = {
 	listToArray: listToArray,
 	clear: clear,
@@ -14184,7 +14224,8 @@ module.exports = {
 	create: create,
 	on: on,
 	get: get,
-	set: set
+	set: set,
+	append: append
 };
 
 },{"./fn":10}],10:[function(require,module,exports){

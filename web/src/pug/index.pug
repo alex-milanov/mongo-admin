@@ -12,6 +12,18 @@ html(lang='en')
 				select#db-select
 					option(value='') Select Database
 				hr
+				h2 collections
+				hr
 				ul#collections
+				hr
+			section#content
+				table#meta
+					tr
+						td Db:
+						td#db-name
+					tr
+						td Collection:
+						td#collection-name
+				table#results
 		//- load the app
 		script(src='js/app.js')

@@ -4,18 +4,10 @@
 @import 'bourbon'
 @import 'neat'
 
-body
-	font-family: 'Open Sans', Helvetica, Arial, sans-serif
+@import 'inc/vars'
+@import 'inc/mixins'
+@import 'inc/common'
 
-#ui
-	#left-pane
-		position: absolute
-		top: 0px
-		bottom: 0px
-		left: 0px
-		width: 240px
-		background: #ccc
-		> *
-			width: 100%
-		h1
-			padding: 0px 10px
+
+@import 'ui/left-pane'
+@import 'ui/content'

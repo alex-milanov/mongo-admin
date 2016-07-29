@@ -1,0 +1,31 @@
+#ui
+	#left-pane
+		position: absolute
+		top: 0px
+		bottom: 0px
+		left: 0px
+		width: 240px
+		background: #ccc
+		> *
+			width: 100%
+			margin: 10px 0px
+			padding: 0px 10px
+		hr
+			+no-margin-padding
+		h1, h2
+		h1
+			font-size: 24px
+		h2
+			font-size: 18px
+		#db-select
+			cursor: pointer
+		#collections
+			padding: 5px 0px
+			background: #eee
+			list-style-type: none
+			li
+				margin: 5px 0px
+				padding: 0px 10px
+				cursor: pointer
+				&:hover, &.active
+					background: #aaa
