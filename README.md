@@ -10,5 +10,5 @@ npm i
 ```sh
 npm start
 ```
-- after all the build tasks are completed open up http://localhost:8080
+- after all the build tasks are completed open up <http://localhost:8080>
 and you should have access to your local mongodb instance
