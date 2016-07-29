@@ -1,0 +1,17 @@
+doctype html
+html(lang='en')
+	head
+		meta(charset='UTF-8')
+		title Mongo Admin
+		link(rel='stylesheet', href='css/style.css')
+	body
+		section#ui
+			section#left-pane
+				h1 mongoAdmin
+				hr
+				select#db-select
+					option(value='') Select Database
+				hr
+				ul#collections
+		//- load the app
+		script(src='js/app.js')

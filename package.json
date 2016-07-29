@@ -4,7 +4,20 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "node bin/move-assets.js",
+    "build": "npm run build:js && npm run build:sass && npm run build:pug",
+    "build:js": "browserify web/src/js/index.js -o web/dist/js/app.js -t [ babelify --presets [ es2015 stage-1 ] ]",
+    "build:sass": "node-sass --include-path=$(node bin/sass-paths.js) web/src/sass/style.sass web/dist/css/style.css",
+    "build:pug": "pug --out web/dist --pretty web/src/pug/index.pug",
+    "watch": "npm run watch:js & npm run watch:sass & npm run watch:pug & npm run livereload",
+    "watch:js": "nodemon --watch 'web/src/js' --exec 'npm run build:js'",
+    "watch:sass": "npm run build:sass -- --watch web/src/sass/**/*",
+    "watch:pug": "npm run build:pug -- --watch",
+    "livereload": "livereload web/dist",
+    "lint": "npm run lint:server && npm run lint:web",
+    "lint:server": "eslint server",
+    "lint:web": "eslint web/src/js",
+    "start": "npm run build && nodemon server & npm run watch"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
