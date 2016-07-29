@@ -2212,7 +2212,8 @@ table {
   bottom: 0px;
   left: 0px;
   width: 240px;
-  background: #ccc; }
+  background: #ccc;
+  border-right: 2px solid #aaa; }
   #ui #left-pane > * {
     width: 100%;
     margin: 10px 0px;
@@ -2225,17 +2226,36 @@ table {
   #ui #left-pane h2 {
     font-size: 18px; }
   #ui #left-pane #db-select {
-    cursor: pointer; }
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    outline: none;
+    border-radius: 0px;
+    border-image: none;
+    box-sizing: border-box;
+    background: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    font-weight: inherit;
+    background: #c0c0c0;
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 2px solid #aaa;
+    border-width: 2px 0px 2px 0px; }
+    #ui #left-pane #db-select:focus, #ui #left-pane #db-select:active, #ui #left-pane #db-select::-moz-focus-inner, #ui #left-pane #db-select:-moz-focusring, #ui #left-pane #db-select::-moz-focus-outer {
+      outline: none; }
   #ui #left-pane #collections {
-    padding: 5px 0px;
-    background: #eee;
+    padding: 0px;
+    background: #d0d0d0;
+    border: 2px solid #aaa;
+    border-width: 2px 0px 2px 0px;
     list-style-type: none; }
     #ui #left-pane #collections li {
-      margin: 5px 0px;
-      padding: 0px 10px;
+      padding: 5px 10px;
       cursor: pointer; }
       #ui #left-pane #collections li:hover, #ui #left-pane #collections li.active {
-        background: #aaa; }
+        background: #c0c0c0; }
 
 #ui #content {
   position: absolute;

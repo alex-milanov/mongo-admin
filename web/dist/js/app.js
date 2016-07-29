@@ -14088,6 +14088,7 @@ _dom2.default.on(dbSelectEl, 'change', function (ev) {
 	dbNameEl.textContent = dbSelectEl.value;
 	collectionNameEl.textContent = '';
 	_dom2.default.clear(resultsEl);
+	if (dbSelectEl.value === '') return false;
 	_request2.default.get('/api/dbs/' + dbSelectEl.value).observe().map(function (res) {
 		return res.body;
 	}).subscribe(function (collections) {

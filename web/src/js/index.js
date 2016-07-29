@@ -30,6 +30,7 @@ dom.on(dbSelectEl, 'change', ev => {
 	dbNameEl.textContent = dbSelectEl.value;
 	collectionNameEl.textContent = '';
 	dom.clear(resultsEl);
+	if (dbSelectEl.value === '') return false;
 	request
 		.get(`/api/dbs/${dbSelectEl.value}`)
 		.observe()
