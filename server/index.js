@@ -18,8 +18,8 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(express.static(path.resolve(__dirname, '../web/dist')));
 
-const mongoose = require('mongoose');
-const db = mongoose.createConnection('mongodb://localhost');
+const mongoUtil = require('../util/mongo');
+const db = mongoUtil.connect('mongodb://localhost');
 
 require('./api')(app, db);
 

@@ -1,6 +1,6 @@
 'use strict';
 
-import fn from './fn';
+const fn = require('./fn');
 
 const listToArray = data => Array.prototype.slice.call(data);
 

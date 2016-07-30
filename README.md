@@ -12,3 +12,7 @@ npm start
 ```
 - after all the build tasks are completed open up <http://localhost:8080>
 and you should have access to your local mongodb instance
+- after the build tasks you can now also try the electron prototype via:
+```sh
+npm run start:electron
+```

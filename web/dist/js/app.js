@@ -14053,83 +14053,7 @@ module.exports = request;
 },{}],8:[function(require,module,exports){
 'use strict';
 
-var _request = require('./util/request');
-
-var _request2 = _interopRequireDefault(_request);
-
-var _dom = require('./util/dom');
-
-var _dom2 = _interopRequireDefault(_dom);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var dbSelectEl = document.querySelector('#db-select');
-var collectionsEl = document.querySelector('#collections');
-
-var dbNameEl = document.querySelector('#db-name');
-var collectionNameEl = document.querySelector('#collection-name');
-
-// const queryEl = document.querySelector('#query');
-var resultsEl = document.querySelector('#results');
-
-_request2.default.get('/api/dbs').observe().map(function (res) {
-	return res.body;
-}).subscribe(function (dbs) {
-	return dbs.forEach(function (dbName) {
-		return dbSelectEl.appendChild(_dom2.default.create('option', {
-			textContent: dbName,
-			value: dbName
-		}));
-	});
-});
-
-_dom2.default.on(dbSelectEl, 'change', function (ev) {
-	_dom2.default.clear(collectionsEl);
-	dbNameEl.textContent = dbSelectEl.value;
-	collectionNameEl.textContent = '';
-	_dom2.default.clear(resultsEl);
-	if (dbSelectEl.value === '') return false;
-	_request2.default.get('/api/dbs/' + dbSelectEl.value).observe().map(function (res) {
-		return res.body;
-	}).subscribe(function (collections) {
-		return collections.forEach(function (colName) {
-			return collectionsEl.appendChild(_dom2.default.create('li', {
-				textContent: colName
-			}));
-		});
-	});
-});
-
-_dom2.default.on(collectionsEl, 'click', 'li', function (ev) {
-	collectionNameEl.textContent = ev.target.textContent;
-	_dom2.default.find(collectionsEl, 'li').forEach(function (liEl) {
-		return liEl.classList.remove('active');
-	});
-	ev.target.classList.add('active');
-	_dom2.default.clear(resultsEl);
-	_request2.default.get('/api/dbs/' + dbSelectEl.value + '/' + ev.target.textContent).observe().map(function (res) {
-		return res.body;
-	}).subscribe(function (data) {
-		return _dom2.default.append(resultsEl, [_dom2.default.append(_dom2.default.create('thead'), [_dom2.default.append(_dom2.default.create('tr'), Object.keys(data.reduce(function (m, o) {
-			return Object.assign(m, o);
-		}, {})).map(function (field) {
-			return _dom2.default.create('th', { textContent: field });
-		}))]), _dom2.default.append(_dom2.default.create('tbody'), data.map(function (doc) {
-			return _dom2.default.append(_dom2.default.create('tr'), Object.keys(doc).map(function (field) {
-				return _dom2.default.create('td', { textContent: doc[field] });
-			}));
-		}))]);
-	});
-});
-
-},{"./util/dom":9,"./util/request":11}],9:[function(require,module,exports){
-'use strict';
-
-var _fn = require('./fn');
-
-var _fn2 = _interopRequireDefault(_fn);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var fn = require('./fn');
 
 var listToArray = function listToArray(data) {
 	return Array.prototype.slice.call(data);
@@ -14145,7 +14069,7 @@ var find = function find(el, query) {
 	return listToArray(el instanceof HTMLElement && el.querySelectorAll(query) || typeof el === 'string' && document.querySelectorAll(el));
 };
 
-var findOne = _fn2.default.compose(find, function (elList) {
+var findOne = fn.compose(find, function (elList) {
 	return elList.length === 1 && elList[0] || elList;
 });
 
@@ -14229,12 +14153,9 @@ module.exports = {
 	append: append
 };
 
-},{"./fn":10}],10:[function(require,module,exports){
+},{"./fn":9}],9:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
 var compose = function compose() {
 	for (var _len = arguments.length, fList = Array(_len), _key = 0; _key < _len; _key++) {
 		fList[_key] = arguments[_key];
@@ -14251,29 +14172,97 @@ var compose = function compose() {
 	};
 };
 
-exports.default = {
+module.exports = {
 	compose: compose
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+var Rx = require('rx');
+var $ = Rx.Observable;
+var superagent = require('superagent');
 
-var _rx = require('rx');
+superagent.Request.prototype.observe = function () {
+	return $.fromNodeCallback(this.end, this)();
+};
 
-var _superagent = require('superagent');
+module.exports = superagent;
 
-var _superagent2 = _interopRequireDefault(_superagent);
+},{"rx":3,"superagent":4}],11:[function(require,module,exports){
+'use strict';
+// observable interface of superagent
+
+var _request = require('../../../util/request');
+
+var _request2 = _interopRequireDefault(_request);
+
+var _dom = require('../../../util/dom');
+
+var _dom2 = _interopRequireDefault(_dom);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_superagent2.default.Request.prototype.observe = function () {
-	return _rx.Observable.fromNodeCallback(this.end, this)();
-};
+var dbSelectEl = document.querySelector('#db-select');
+var collectionsEl = document.querySelector('#collections');
 
-exports.default = _superagent2.default;
+var dbNameEl = document.querySelector('#db-name');
+var collectionNameEl = document.querySelector('#collection-name');
 
-},{"rx":3,"superagent":4}]},{},[8]);
+// const queryEl = document.querySelector('#query');
+var resultsEl = document.querySelector('#results');
+
+// fetch the database
+_request2.default.get('http://localhost:8080/api/dbs').observe().map(function (res) {
+	return res.body;
+}).subscribe(function (dbs) {
+	return dbs.forEach(function (dbName) {
+		return dbSelectEl.appendChild(_dom2.default.create('option', {
+			textContent: dbName,
+			value: dbName
+		}));
+	});
+});
+
+// on database select display collections
+_dom2.default.on(dbSelectEl, 'change', function (ev) {
+	_dom2.default.clear(collectionsEl);
+	dbNameEl.textContent = dbSelectEl.value;
+	collectionNameEl.textContent = '';
+	_dom2.default.clear(resultsEl);
+	if (dbSelectEl.value === '') return false;
+	_request2.default.get('http://localhost:8080/api/dbs/' + dbSelectEl.value).observe().map(function (res) {
+		return res.body;
+	}).subscribe(function (collections) {
+		return collections.forEach(function (colName) {
+			return collectionsEl.appendChild(_dom2.default.create('li', {
+				textContent: colName
+			}));
+		});
+	});
+});
+
+// on collection select(click) display contents/documents
+_dom2.default.on(collectionsEl, 'click', 'li', function (ev) {
+	collectionNameEl.textContent = ev.target.textContent;
+	_dom2.default.find(collectionsEl, 'li').forEach(function (liEl) {
+		return liEl.classList.remove('active');
+	});
+	ev.target.classList.add('active');
+	_dom2.default.clear(resultsEl);
+	_request2.default.get('http://localhost:8080/api/dbs/' + dbSelectEl.value + '/' + ev.target.textContent).observe().map(function (res) {
+		return res.body;
+	}).subscribe(function (data) {
+		return _dom2.default.append(resultsEl, [_dom2.default.append(_dom2.default.create('thead'), [_dom2.default.append(_dom2.default.create('tr'), Object.keys(data.reduce(function (m, o) {
+			return Object.assign(m, o);
+		}, {})).map(function (field) {
+			return _dom2.default.create('th', { textContent: field });
+		}))]), _dom2.default.append(_dom2.default.create('tbody'), data.map(function (doc) {
+			return _dom2.default.append(_dom2.default.create('tr'), Object.keys(doc).map(function (field) {
+				return _dom2.default.create('td', { textContent: doc[field] });
+			}));
+		}))]);
+	});
+});
+
+},{"../../../util/dom":8,"../../../util/request":10}]},{},[11]);
