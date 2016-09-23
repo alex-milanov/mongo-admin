@@ -2,7 +2,7 @@
 	#content
 		position: absolute
 		top: 0px
-		left: 240px
+		left: 250px
 		bottom: 0px
 		right: 0px
 		padding: 20px
@@ -11,3 +11,15 @@
 			width: 100%
 		#results
 			margin-top: 20px
+		#breadcrumb
+			+no-margin-padding
+			margin: 10px
+			list-style-type: none
+			li
+				+no-margin-padding
+				display: inline-block
+				&:not(:first-child)::before
+					font-family: FontAwesome
+					content: '\f054 '
+					font-size: 12px
+					margin: 0px 5px

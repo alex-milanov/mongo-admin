@@ -4,22 +4,7 @@ html(lang='en')
 		meta(charset='UTF-8')
 		title Mongo Admin
 		link(rel='stylesheet', href='css/style.css')
-	body
+	body(onLoad='actions.init()')
 		section#ui
-			section#left-pane
-				h1 mongoAdmin
-				select#db-select
-					option(value='') Select Database
-				h2 collections
-				ul#collections
-			section#content
-				table#meta
-					tr
-						td Db:
-						td#db-name
-					tr
-						td Collection:
-						td#collection-name
-				table#results
 		//- load the app
 		script(src='js/app.js')

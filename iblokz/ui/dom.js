@@ -1,6 +1,6 @@
 'use strict';
 
-const fn = require('./fn');
+const fn = require('../common/fn');
 
 const listToArray = data => Array.prototype.slice.call(data);
 

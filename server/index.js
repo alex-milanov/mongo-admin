@@ -18,8 +18,8 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(express.static(path.resolve(__dirname, '../web/dist')));
 
-const mongoUtil = require('../util/mongo');
-const db = mongoUtil.connect('mongodb://localhost');
+const mongo = require('iblokz').adapters.mongo;
+const db = mongo.connect('mongodb://localhost');
 
 require('./api')(app, db);
 

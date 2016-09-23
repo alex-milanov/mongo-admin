@@ -3,9 +3,9 @@
 const fse = require('fs-extra');
 const path = require('path');
 
-const term = require('../util/term');
+const cli = require('iblokz').common.cli;
 
-const args = term.parseArgs(process.argv.slice(2));
+const args = cli.parseArgs(process.argv.slice(2));
 
 const recipe = {
 	pre: {
@@ -14,8 +14,7 @@ const recipe = {
 	post: {
 		'electron/app/css': 'web/dist/css',
 		'electron/app/fonts': 'web/dist/fonts',
-		'electron/app/index.html': 'web/dist/index.html',
-		'electron/app/util': 'util'
+		'electron/app/index.html': 'web/dist/index.html'
 	}
 };
 

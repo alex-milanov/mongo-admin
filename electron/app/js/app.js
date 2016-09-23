@@ -2,8 +2,8 @@
 
 const $ = require('rx').Observable;
 // observable interface of superagent
-const request = require('./util/request');
-const dom = require('./util/dom');
+const request = require('iblokz').adapters.request;
+const dom = require('iblokz').ui.dom;
 
 const ipc = require('electron').ipcRenderer;
 
@@ -17,7 +17,7 @@ const ipc = require('electron').ipcRenderer;
 // 	err => console.log(err)
 // ));
 
-const dbSelectEl = document.querySelector('#db-select');
+const dbSelectEl = document.querySelector('#db-select > select');
 const collectionsEl = document.querySelector('#collections');
 
 const dbNameEl = document.querySelector('#db-name');

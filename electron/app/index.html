@@ -5,17 +5,26 @@
     <title>Mongo Admin</title>
     <link rel="stylesheet" href="css/style.css">
   </head>
-  <body>
+  <body onLoad="actions.init()">
     <section id="ui">
       <section id="left-pane">
-        <h1>mongoAdmin</h1>
-        <select id="db-select">
-          <option value="">Select Database</option>
-        </select>
-        <h2>collections</h2>
-        <ul id="collections"></ul>
+        <h1><i class="fa fa-database"></i>&nbsp;mongoAdmin&nbsp;</h1>
+        <section id="db-select">
+          <select>
+            <option value="">Select Database</option>
+          </select>
+        </section>
+        <h2><i class="fa fa-list"></i>&nbsp;Collections</h2>
+        <section>
+          <ul id="collections"></ul>
+        </section>
       </section>
       <section id="content">
+        <ul id="breadcrumb">
+          <li>localhost</li>
+          <li>local</li>
+          <li>articles</li>
+        </ul>
         <table id="meta">
           <tr>
             <td>Db:</td>

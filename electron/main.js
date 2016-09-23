@@ -5,7 +5,7 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 const ipc = require('electron').ipcMain;
-const mongo = require('../util/mongo');
+const mongo = require('iblokz').adapters.mongo;
 
 const db = mongo.connect('mongodb://localhost');
 

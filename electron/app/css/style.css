@@ -2211,51 +2211,107 @@ table {
   top: 0px;
   bottom: 0px;
   left: 0px;
-  width: 240px;
-  background: #ccc;
-  border-right: 2px solid #aaa; }
+  width: 250px;
+  background: #f2f8f0;
+  box-shadow: 0px 0px 5px #ddd;
+  border-right: 1px solid #ddd; }
   #ui #left-pane > * {
     width: 100%;
-    margin: 10px 0px;
+    margin: 0px;
     padding: 0px 10px; }
   #ui #left-pane hr {
     margin: 0px;
     padding: 0px; }
   #ui #left-pane h1 {
-    font-size: 24px; }
+    font-size: 18px;
+    text-align: center;
+    padding: 0px;
+    margin-top: 35px;
+    color: #836D58; }
+    #ui #left-pane h1 i {
+      margin-left: -10px;
+      color: #a4e48a; }
   #ui #left-pane h2 {
-    font-size: 18px; }
+    font-size: 14px; }
+  #ui #left-pane > section {
+    width: 100%;
+    position: relative;
+    padding: 0px 10px;
+    line-height: 24px;
+    height: 24px; }
   #ui #left-pane #db-select {
-    margin: 0px;
-    padding: 0px;
-    border: 0px;
-    outline: none;
-    border-radius: 0px;
-    border-image: none;
-    box-sizing: border-box;
-    background: inherit;
-    font-size: inherit;
-    font-family: inherit;
-    font-weight: inherit;
-    background: #c0c0c0;
-    padding: 10px;
-    font-size: 14px;
-    cursor: pointer;
-    border: 2px solid #aaa;
-    border-width: 2px 0px 2px 0px; }
-    #ui #left-pane #db-select:focus, #ui #left-pane #db-select:active, #ui #left-pane #db-select::-moz-focus-inner, #ui #left-pane #db-select:-moz-focusring, #ui #left-pane #db-select::-moz-focus-outer {
-      outline: none; }
+    margin: 40px 0px; }
+    #ui #left-pane #db-select::after {
+      font-family: FontAwesome;
+      content: '\f078';
+      line-height: 24px;
+      padding: 0px;
+      height: 24px;
+      position: absolute;
+      top: 0px;
+      right: 15px;
+      color: #bbb;
+      pointer-events: none; }
+    #ui #left-pane #db-select select {
+      margin: 0px;
+      padding: 0px;
+      border: 0px;
+      outline: none;
+      border-radius: 0px;
+      border-image: none;
+      box-sizing: border-box;
+      background: inherit;
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      box-sizing: border-box;
+      width: 100%;
+      display: block;
+      background: none;
+      padding: 0px;
+      font-size: 14px;
+      line-height: 24px;
+      height: 24px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      box-shadow: 0px 0px 5px #ddd;
+      border: 1px solid #ddd;
+      transition: box-shadow 0.5s; }
+      #ui #left-pane #db-select select:focus, #ui #left-pane #db-select select:active, #ui #left-pane #db-select select::-moz-focus-inner, #ui #left-pane #db-select select:-moz-focusring, #ui #left-pane #db-select select::-moz-focus-outer {
+        border: none;
+        outline: none;
+        border-radius: 0px;
+        border-image: none; }
+      #ui #left-pane #db-select select:-moz-focusring {
+        color: transparent;
+        text-shadow: 0 0 0 #000; }
+      #ui #left-pane #db-select select:-moz-focusring * {
+        color: #000;
+        text-shadow: none;
+        border: 0px; }
+      #ui #left-pane #db-select select:hover {
+        box-shadow: 0px 0px 5px #ccc; }
   #ui #left-pane #collections {
+    margin: 5px 0px;
     padding: 0px;
-    background: #d0d0d0;
-    border: 2px solid #aaa;
-    border-width: 2px 0px 2px 0px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 0px 5px #ddd;
     list-style-type: none; }
     #ui #left-pane #collections li {
-      padding: 5px 10px;
-      cursor: pointer; }
-      #ui #left-pane #collections li:hover, #ui #left-pane #collections li.active {
-        background: #c0c0c0; }
+      padding: 0px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 24px;
+      height: 24px;
+      transition: background .3s; }
+      #ui #left-pane #collections li:not(:first-child) {
+        border-top: 1px solid #ddd; }
+      #ui #left-pane #collections li.active {
+        box-shadow: inset 0px 0px 5px #ddd; }
+      #ui #left-pane #collections li:hover {
+        background: #f0f0f0; }
 
 #ui #content {
   position: absolute;
@@ -2269,3 +2325,17 @@ table {
     width: 100%; }
   #ui #content #results {
     margin-top: 20px; }
+  #ui #content #breadcrumb {
+    margin: 0px;
+    padding: 0px;
+    margin: 10px;
+    list-style-type: none; }
+    #ui #content #breadcrumb li {
+      margin: 0px;
+      padding: 0px;
+      display: inline-block; }
+      #ui #content #breadcrumb li:not(:first-child)::before {
+        font-family: FontAwesome;
+        content: '\f054 ';
+        font-size: 12px;
+        margin: 0px 5px; }
