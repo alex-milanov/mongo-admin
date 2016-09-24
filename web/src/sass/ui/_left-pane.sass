@@ -31,6 +31,26 @@
 			padding: 0px 10px
 			line-height: 24px
 			height: 24px
+			button
+				+clear-form-control
+				width: 100%
+				margin: 5px 0px
+				border: 1px solid #ddd
+				box-shadow: 0px 0px 15px #ddd
+				font-size: 12px
+				cursor: pointer
+				opacity: 0.4
+				transition: opacity 0.1s
+				&:hover
+					opacity: 1
+					border: 1px solid #ddd
+					background: lighten(#f2f8f0, 1%)
+				&:active
+					//background: #e5e5e5
+					border: 1px solid #ddd
+					box-shadow: inset 0px 0px 5px #ddd
+				&:focus
+					border: 1px solid #ddd
 		#db-select
 			margin: 40px 0px
 			&::after
@@ -49,10 +69,10 @@
 				&:-moz-focusring
 					color: transparent
 					text-shadow: 0 0 0 #000
+					border: 1px solid #ddd
 				&:-moz-focusring *
 					color: #000
 					text-shadow: none
-					border: 0px
 				box-sizing: border-box
 				width: 100%
 				display: block
@@ -65,17 +85,17 @@
 				-webkit-appearance: none
 				-moz-appearance: none
 				appearance: none
-				box-shadow: 0px 0px 5px #ddd
 				border: 1px solid #ddd
+				box-shadow: 0px 0px 15px #ddd
 				transition: box-shadow 0.5s
 				&:hover
-					box-shadow: 0px 0px 5px #ccc
+					box-shadow: 0px 0px 15px #ccc
 
 		#collections
 			margin: 5px 0px
 			padding: 0px
 			border: 1px solid #ddd
-			box-shadow: 0px 0px 5px #ddd
+			box-shadow: 0px 0px 15px #ddd
 			list-style-type: none
 			li
 				&:not(:first-child)
@@ -90,4 +110,4 @@
 					//background: #e5e5e5
 					box-shadow: inset 0px 0px 5px #ddd
 				&:hover
-					background: #f0f0f0
+					background: lighten(#f2f8f0, 1%)

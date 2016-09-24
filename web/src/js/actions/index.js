@@ -22,7 +22,8 @@ const init = () => {
 			selection: {
 				server: 'localhost',
 				db: null,
-				collection: null
+				collection: null,
+				toggledRow: -1
 			},
 			dbs: [],
 			collections: [],
@@ -43,12 +44,19 @@ const getCollections = db => request
 const setDb = db => {
 	stream.onNext(
 		state => Object.assign({},
-			obj.patch(state, 'selection', {db, collection: null}),
+			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
 			{documents: []}
 		)
 	);
 	getCollections(db);
 };
+
+const createDb = db => stream.onNext(
+	state => Object.assign({},
+		obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
+		{collections: [], dbs: state.dbs.concat([db]), documents: []}
+	)
+);
 
 const getDocuments = (db, collection) => request
 	.get(`http://localhost:8080/api/dbs/${db}/${collection}`)
@@ -62,12 +70,34 @@ const setCollection = collection => stream.onNext(
 	state => obj.patch(state, 'selection', {collection})
 );
 
+const createCollection = (db, collection) => request
+	.post(`http://localhost:8080/api/dbs/${db}/${collection}`)
+	.observe()
+	.subscribe(() => stream.onNext(
+		state => Object.assign(
+			{},
+			obj.patch(state, 'selection', {collection, toggledRow: -1}),
+			{documents: [], collections: state.collections.concat([collection])}
+		)
+	));
+
+const toggleRow = index => stream.onNext(
+	state => obj.patch(state, 'selection', {
+		toggledRow: (state.selection.toggledRow === index)
+			? -1
+			: index
+	})
+);
+
 module.exports = {
 	stream,
 	init,
 	getDBs,
 	getCollections,
 	setDb,
+	createDb,
 	getDocuments,
-	setCollection
+	setCollection,
+	createCollection,
+	toggleRow
 };

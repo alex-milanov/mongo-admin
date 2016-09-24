@@ -9,8 +9,7 @@
 		overflow-y: scroll
 		> *
 			width: 100%
-		#results
-			margin-top: 20px
+
 		#breadcrumb
 			+no-margin-padding
 			margin: 10px
@@ -23,3 +22,19 @@
 					content: '\f054 '
 					font-size: 12px
 					margin: 0px 5px
+		table#results
+			margin-top: 20px
+			font-size: 14px
+			line-height: 24px
+			border-collapse: collapse
+			th, td
+				padding: 5px
+				border: 1px solid #aaa
+			td
+				vertical-align: top
+			tr pre
+				+no-margin-padding
+				overflow: hidden
+				max-height: 48px
+			tr.toggled pre
+				max-height: inherit

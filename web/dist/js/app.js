@@ -359,7 +359,7 @@ var objectKeys = Object.keys || function (obj) {
   return keys;
 };
 
-},{"util/":126}],2:[function(require,module,exports){
+},{"util/":127}],2:[function(require,module,exports){
 (function (process,global){
 /*!
  * async
@@ -7369,7 +7369,7 @@ BinaryParser.Buffer = BinaryParserBuffer;
 exports.BinaryParser = BinaryParser;
 
 }).call(this,require('_process'))
-},{"_process":108,"util":126}],7:[function(require,module,exports){
+},{"_process":108,"util":127}],7:[function(require,module,exports){
 (function (Buffer){
 // "use strict"
 
@@ -10063,7 +10063,7 @@ var JS_INT_MIN_LONG = Long.fromNumber(-0x20000000000000);  // Any integer down t
 
 module.exports = deserialize
 
-},{"../binary":5,"../code":8,"../db_ref":9,"../double":10,"../float_parser":11,"../long":12,"../max_key":14,"../min_key":15,"../objectid":16,"../regexp":20,"../symbol":21,"../timestamp":22,"util":126}],19:[function(require,module,exports){
+},{"../binary":5,"../code":8,"../db_ref":9,"../double":10,"../float_parser":11,"../long":12,"../max_key":14,"../min_key":15,"../objectid":16,"../regexp":20,"../symbol":21,"../timestamp":22,"util":127}],19:[function(require,module,exports){
 (function (Buffer){
 "use strict"
 
@@ -14713,7 +14713,7 @@ superagent.Request.prototype.observe = function() {
 
 module.exports = superagent;
 
-},{"rx":110,"superagent":121}],32:[function(require,module,exports){
+},{"rx":110,"superagent":122}],32:[function(require,module,exports){
 'use strict';
 
 const snabbdom = require('snabbdom');
@@ -14722,6 +14722,7 @@ const h = require('snabbdom/h');
 const patch = snabbdom.init([ // Init patch function with choosen modules
 	require('snabbdom/modules/class'), // makes it easy to toggle classes
 	require('snabbdom/modules/props'), // for setting properties on DOM elements
+	require('snabbdom/modules/attributes'), // for setting properties on DOM elements
 	require('snabbdom/modules/style'), // handles styling on elements with support for animations
 	require('snabbdom/modules/eventlisteners') // attaches event listeners
 ]);
@@ -14766,7 +14767,7 @@ module.exports = Object.assign(
 	hyperHelpers
 );
 
-},{"snabbdom":119,"snabbdom/h":112,"snabbdom/modules/class":115,"snabbdom/modules/eventlisteners":116,"snabbdom/modules/props":117,"snabbdom/modules/style":118}],33:[function(require,module,exports){
+},{"snabbdom":120,"snabbdom/h":112,"snabbdom/modules/attributes":115,"snabbdom/modules/class":116,"snabbdom/modules/eventlisteners":117,"snabbdom/modules/props":118,"snabbdom/modules/style":119}],33:[function(require,module,exports){
 'use strict';
 
 const str = require('./str');
@@ -18398,7 +18399,7 @@ Document.ValidationError = ValidationError;
 module.exports = exports = Document;
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")},require('_process'))
-},{"../../is-buffer/index.js":41,"./error":54,"./error/objectExpected":59,"./error/strict":61,"./internal":65,"./promise_provider":67,"./schema":68,"./schema/mixed":76,"./schematype":83,"./services/common":84,"./types/array":86,"./types/documentarray":88,"./types/embedded":89,"./utils":93,"_process":108,"events":28,"hooks-fixed":29,"util":126}],48:[function(require,module,exports){
+},{"../../is-buffer/index.js":41,"./error":54,"./error/objectExpected":59,"./error/strict":61,"./internal":65,"./promise_provider":67,"./schema":68,"./schema/mixed":76,"./schematype":83,"./services/common":84,"./types/array":86,"./types/documentarray":88,"./types/embedded":89,"./utils":93,"_process":108,"events":28,"hooks-fixed":29,"util":127}],48:[function(require,module,exports){
 'use strict';
 
 /* eslint-env browser */
@@ -19351,7 +19352,7 @@ Promise.prototype.addErrback = Promise.prototype.onReject;
 
 module.exports = Promise;
 
-},{"mpromise":97,"util":126}],67:[function(require,module,exports){
+},{"mpromise":97,"util":127}],67:[function(require,module,exports){
 /*!
  * Module dependencies.
  */
@@ -21257,7 +21258,7 @@ handle.$regex = SchemaArray.prototype.castForQuery;
 
 module.exports = SchemaArray;
 
-},{"../cast":46,"../schematype":83,"../types":90,"../utils":93,"./boolean":70,"./buffer":71,"./date":72,"./mixed":76,"./number":77,"./objectid":78,"./operators/geospatial":80,"./operators/helpers":81,"./string":82,"util":126}],70:[function(require,module,exports){
+},{"../cast":46,"../schematype":83,"../types":90,"../utils":93,"./boolean":70,"./buffer":71,"./date":72,"./mixed":76,"./number":77,"./objectid":78,"./operators/geospatial":80,"./operators/helpers":81,"./string":82,"util":127}],70:[function(require,module,exports){
 /*!
  * Module dependencies.
  */
@@ -22154,7 +22155,7 @@ function scopePaths(array, fields, init) {
 
 module.exports = DocumentArray;
 
-},{"../error/cast":55,"../schematype":83,"../types/documentarray":88,"../types/embedded":89,"./array":69,"util":126}],74:[function(require,module,exports){
+},{"../error/cast":55,"../schematype":83,"../types/documentarray":88,"../types/embedded":89,"./array":69,"util":127}],74:[function(require,module,exports){
 'use strict';
 
 /*!
@@ -28249,7 +28250,7 @@ Promise.deferred = function deferred() {
 /* End A+ tests adapter bit */
 
 }).call(this,require('_process'))
-},{"_process":108,"events":28,"util":126}],98:[function(require,module,exports){
+},{"_process":108,"events":28,"util":127}],98:[function(require,module,exports){
 'use strict';
 
 /**
@@ -31174,7 +31175,7 @@ module.exports = exports = Query;
 // TODO
 // test utils
 
-},{"./collection":99,"./collection/collection":98,"./env":101,"./permissions":103,"./utils":104,"assert":1,"bluebird":4,"debug":26,"sliced":105,"util":126}],103:[function(require,module,exports){
+},{"./collection":99,"./collection/collection":98,"./env":101,"./permissions":103,"./utils":104,"assert":1,"bluebird":4,"debug":26,"sliced":105,"util":127}],103:[function(require,module,exports){
 'use strict';
 
 var denied = exports;
@@ -44348,7 +44349,7 @@ module.exports = function h(sel, b, c) {
   return VNode(sel, data, children, text, undefined);
 };
 
-},{"./is":114,"./vnode":120}],113:[function(require,module,exports){
+},{"./is":114,"./vnode":121}],113:[function(require,module,exports){
 function createElement(tagName){
   return document.createElement(tagName);
 }
@@ -44411,6 +44412,51 @@ module.exports = {
 };
 
 },{}],115:[function(require,module,exports){
+var booleanAttrs = ["allowfullscreen", "async", "autofocus", "autoplay", "checked", "compact", "controls", "declare",
+                "default", "defaultchecked", "defaultmuted", "defaultselected", "defer", "disabled", "draggable",
+                "enabled", "formnovalidate", "hidden", "indeterminate", "inert", "ismap", "itemscope", "loop", "multiple",
+                "muted", "nohref", "noresize", "noshade", "novalidate", "nowrap", "open", "pauseonexit", "readonly",
+                "required", "reversed", "scoped", "seamless", "selected", "sortable", "spellcheck", "translate",
+                "truespeed", "typemustmatch", "visible"];
+
+var booleanAttrsDict = {};
+for(var i=0, len = booleanAttrs.length; i < len; i++) {
+  booleanAttrsDict[booleanAttrs[i]] = true;
+}
+
+function updateAttrs(oldVnode, vnode) {
+  var key, cur, old, elm = vnode.elm,
+      oldAttrs = oldVnode.data.attrs, attrs = vnode.data.attrs;
+
+  if (!oldAttrs && !attrs) return;
+  oldAttrs = oldAttrs || {};
+  attrs = attrs || {};
+
+  // update modified attributes, add new attributes
+  for (key in attrs) {
+    cur = attrs[key];
+    old = oldAttrs[key];
+    if (old !== cur) {
+      // TODO: add support to namespaced attributes (setAttributeNS)
+      if(!cur && booleanAttrsDict[key])
+        elm.removeAttribute(key);
+      else
+        elm.setAttribute(key, cur);
+    }
+  }
+  //remove removed attributes
+  // use `in` operator since the previous `for` iteration uses it (.i.e. add even attributes with undefined value)
+  // the other option is to remove all attributes with value == undefined
+  for (key in oldAttrs) {
+    if (!(key in attrs)) {
+      elm.removeAttribute(key);
+    }
+  }
+}
+
+module.exports = {create: updateAttrs, update: updateAttrs};
+
+},{}],116:[function(require,module,exports){
 function updateClass(oldVnode, vnode) {
   var cur, name, elm = vnode.elm,
       oldClass = oldVnode.data.class,
@@ -44435,7 +44481,7 @@ function updateClass(oldVnode, vnode) {
 
 module.exports = {create: updateClass, update: updateClass};
 
-},{}],116:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 function invokeHandler(handler, vnode, event) {
   if (typeof handler === "function") {
     // call function handler
@@ -44538,7 +44584,7 @@ module.exports = {
   destroy: updateEventListeners
 };
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 function updateProps(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
       oldProps = oldVnode.data.props, props = vnode.data.props;
@@ -44563,7 +44609,7 @@ function updateProps(oldVnode, vnode) {
 
 module.exports = {create: updateProps, update: updateProps};
 
-},{}],118:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 var raf = (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
 var nextFrame = function(fn) { raf(function() { raf(fn); }); };
 
@@ -44634,7 +44680,7 @@ function applyRemoveStyle(vnode, rm) {
 
 module.exports = {create: updateStyle, update: updateStyle, destroy: applyDestroyStyle, remove: applyRemoveStyle};
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 // jshint newcap: false
 /* global require, module, document, Node */
 'use strict';
@@ -44896,14 +44942,14 @@ function init(modules, api) {
 
 module.exports = {init: init};
 
-},{"./htmldomapi":113,"./is":114,"./vnode":120}],120:[function(require,module,exports){
+},{"./htmldomapi":113,"./is":114,"./vnode":121}],121:[function(require,module,exports){
 module.exports = function(sel, data, children, text, elm) {
   var key = data === undefined ? undefined : data.key;
   return {sel: sel, data: data, children: children,
           text: text, elm: elm, key: key};
 };
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 /**
  * Root reference for iframes.
  */
@@ -45879,7 +45925,7 @@ request.put = function(url, data, fn){
   return req;
 };
 
-},{"./is-object":122,"./request":124,"./request-base":123,"emitter":25}],122:[function(require,module,exports){
+},{"./is-object":123,"./request":125,"./request-base":124,"emitter":25}],123:[function(require,module,exports){
 /**
  * Check if `obj` is an object.
  *
@@ -45894,7 +45940,7 @@ function isObject(obj) {
 
 module.exports = isObject;
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 /**
  * Module of mixed-in functions shared between node and client code
  */
@@ -46243,7 +46289,7 @@ exports.send = function(data){
   return this;
 };
 
-},{"./is-object":122}],124:[function(require,module,exports){
+},{"./is-object":123}],125:[function(require,module,exports){
 // The node and browser modules expose versions of this with the
 // appropriate constructor function bound as first argument
 /**
@@ -46277,14 +46323,14 @@ function request(RequestConstructor, method, url) {
 
 module.exports = request;
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],126:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -46874,7 +46920,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":125,"_process":108,"inherits":40}],127:[function(require,module,exports){
+},{"./support/isBuffer":126,"_process":108,"inherits":40}],128:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -46901,7 +46947,8 @@ var init = function init() {
 			selection: {
 				server: 'localhost',
 				db: null,
-				collection: null
+				collection: null,
+				toggledRow: -1
 			},
 			dbs: [],
 			collections: [],
@@ -46923,9 +46970,15 @@ var getCollections = function getCollections(db) {
 
 var setDb = function setDb(db) {
 	stream.onNext(function (state) {
-		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null }), { documents: [] });
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [] });
 	});
 	getCollections(db);
+};
+
+var createDb = function createDb(db) {
+	return stream.onNext(function (state) {
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [] });
+	});
 };
 
 var getDocuments = function getDocuments(db, collection) {
@@ -46944,17 +46997,36 @@ var setCollection = function setCollection(collection) {
 	});
 };
 
+var createCollection = function createCollection(db, collection) {
+	return request.post('http://localhost:8080/api/dbs/' + db + '/' + collection).observe().subscribe(function () {
+		return stream.onNext(function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), { documents: [], collections: state.collections.concat([collection]) });
+		});
+	});
+};
+
+var toggleRow = function toggleRow(index) {
+	return stream.onNext(function (state) {
+		return obj.patch(state, 'selection', {
+			toggledRow: state.selection.toggledRow === index ? -1 : index
+		});
+	});
+};
+
 module.exports = {
 	stream: stream,
 	init: init,
 	getDBs: getDBs,
 	getCollections: getCollections,
 	setDb: setDb,
+	createDb: createDb,
 	getDocuments: getDocuments,
-	setCollection: setCollection
+	setCollection: setCollection,
+	createCollection: createCollection,
+	toggleRow: toggleRow
 };
 
-},{"iblokz":37,"rx":110}],128:[function(require,module,exports){
+},{"iblokz":37,"rx":110}],129:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -46982,7 +47054,7 @@ vdom.patchStream(ui$, '#ui');
 
 window.actions = actions;
 
-},{"./actions":127,"./ui":129,"iblokz":37,"rx":110}],129:[function(require,module,exports){
+},{"./actions":128,"./ui":130,"iblokz":37,"rx":110}],130:[function(require,module,exports){
 'use strict';
 
 var _require$adapters$vdo = require('iblokz').adapters.vdom;
@@ -47002,6 +47074,7 @@ var tr = _require$adapters$vdo.tr;
 var td = _require$adapters$vdo.td;
 var th = _require$adapters$vdo.th;
 var pre = _require$adapters$vdo.pre;
+var button = _require$adapters$vdo.button;
 
 
 module.exports = function (_ref) {
@@ -47011,9 +47084,17 @@ module.exports = function (_ref) {
 		on: { change: function change(el) {
 				return actions.setDb(el.target.value);
 			} }
-	}, [select([option({ props: { value: '' } }, 'Select Database')].concat(state.dbs.map(function (db) {
-		return option({ props: { value: db } }, db);
-	})))]), h2([i('.fa.fa-list'), ' Collections']), section(state.collections.length > 0 ? [ul('#collections', state.collections.map(function (collection) {
+	}, [select([option({ attrs: { value: '' } }, 'Select Database')].concat(state.dbs.map(function (db) {
+		return option({ attrs: { value: db, selected: db === state.selection.db } }, db);
+	}))), button('#create-db', {
+		on: {
+			click: function click(el) {
+				return actions.createDb(prompt('Enter Database Name'));
+			}
+		}
+	}, 'Create new Database')]),
+	// show collections if db is selected
+	state.selection.db ? section([h2([i('.fa.fa-list'), ' Collections']), ul('#collections', state.collections.map(function (collection) {
 		return li({
 			on: { click: function click(el) {
 					actions.setCollection(collection);
@@ -47023,15 +47104,28 @@ module.exports = function (_ref) {
 				active: collection === state.selection.collection
 			}
 		}, collection);
-	}))] : [])]), section('#content', [ul('#breadcrumb', [li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), table('#results', [thead([tr(Object.keys(state.documents.reduce(function (m, o) {
+	})), button('#create-collection', {
+		on: {
+			click: function click(el) {
+				return actions.createCollection(state.selection.db, prompt('Enter Collection Name'));
+			}
+		}
+	}, 'Create new Collection')]) : '']), section('#content', [ul('#breadcrumb', [li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), table('#results', [thead([tr(Object.keys(state.documents.reduce(function (m, o) {
 		return Object.assign(m, o);
 	}, {})).map(function (field) {
 		return th(field);
-	}))]), tbody(state.documents.map(function (doc) {
-		return tr(Object.keys(doc).map(function (field) {
+	}))]), tbody(state.documents.map(function (doc, index) {
+		return tr({
+			on: { click: function click(el) {
+					return actions.toggleRow(index);
+				} },
+			class: {
+				toggled: index === state.selection.toggledRow
+			}
+		}, Object.keys(doc).map(function (field) {
 			return td(typeof doc[field] === 'string' ? doc[field] : [pre(JSON.stringify(doc[field], null, 2))]);
 		}));
 	}))])])]);
 };
 
-},{"iblokz":37}]},{},[128]);
+},{"iblokz":37}]},{},[129]);
