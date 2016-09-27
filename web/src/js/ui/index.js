@@ -5,6 +5,8 @@ const {
 	table, tbody, thead, tr, td, th, pre, button, div
 } = require('iblokz').adapters.vdom;
 
+const content = require('./content');
+
 module.exports = ({state, actions}) => section('#ui', [
 	section('#left-pane', [
 		h1([
@@ -47,47 +49,5 @@ module.exports = ({state, actions}) => section('#ui', [
 				}, 'Create new Collection')
 			]) : ''
 	]),
-	section('#content', [
-		ul('#breadcrumb', [
-			li('.fa.fa-home'),
-			li(state.selection.server),
-			state.selection.db && li(state.selection.db) || '',
-			state.selection.collection && li(state.selection.collection) || ''
-		]),
-		(state.selection.collection) ?
-			section('#collection', [
-				button('.big', 'Create new Document'),
-				(state.collections.length > 0) ?
-					table('#results', [
-						thead([
-							tr([
-								th('')
-							].concat(Object.keys(state.documents.reduce((m, o) => Object.assign(m, o), {})).map(
-								field => th(field)
-							)))
-						]),
-						tbody(state.documents.map((doc, index) =>
-							tr({
-								class: {
-									toggled: (index === state.selection.toggledRow)
-								}
-							}, [
-								td([
-									button('.fa.fa-pencil.blue'),
-									button('.fa.fa-trash.red'),
-									button('.fa.fa-expand.green', {
-										on: {click: el => actions.toggleRow(index)}
-									})
-								])
-							].concat(Object.keys(doc).map(field =>
-								td(
-									(typeof doc[field] === 'string')
-										? [div(doc[field])]
-										: [pre(JSON.stringify(doc[field], null, 2))]
-								)
-							)))
-						))
-					]) : ''
-			]) : ''
-	])
+	content({state, actions})
 ]);

@@ -23,7 +23,7 @@ const hyperHelpers = [
 	'h1', 'h2', 'h3', 'h4', 'section', 'header', 'article',
 	'div', 'p', 'span', 'pre', 'code', 'a', 'dd', 'dt', 'hr', 'br', 'b', 'i',
 	'table', 'thead', 'tbody', 'th', 'tr', 'td', 'ul', 'ol', 'li',
-	'form', 'fieldset', 'legend', 'input', 'label', 'button', 'select', 'option',
+	'form', 'fieldset', 'legend', 'input', 'textarea', 'label', 'button', 'select', 'option',
 	'canvas', 'video'
 ].reduce(
 	(o, tag) => {

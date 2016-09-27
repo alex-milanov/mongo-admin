@@ -25,6 +25,7 @@ const init = () => {
 				collection: null,
 				toggledRow: -1
 			},
+			doc: null,
 			dbs: [],
 			collections: [],
 			documents: []
@@ -38,14 +39,14 @@ const getCollections = db => request
 	.observe()
 	.map(res => res.body)
 	.subscribe(collections => stream.onNext(
-		state => Object.assign({}, state, {collections})
+		state => Object.assign({}, state, {collections, doc: null})
 	));
 
 const setDb = db => {
 	stream.onNext(
 		state => Object.assign({},
 			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
-			{documents: []}
+			{documents: [], doc: null}
 		)
 	);
 	getCollections(db);
@@ -54,7 +55,7 @@ const setDb = db => {
 const createDb = db => stream.onNext(
 	state => Object.assign({},
 		obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
-		{collections: [], dbs: state.dbs.concat([db]), documents: []}
+		{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null}
 	)
 );
 
@@ -63,11 +64,11 @@ const getDocuments = (db, collection) => request
 	.observe()
 	.map(res => res.body)
 	.subscribe(documents => stream.onNext(
-		state => Object.assign({}, state, {documents})
+		state => Object.assign({}, state, {documents, doc: null})
 	));
 
 const setCollection = collection => stream.onNext(
-	state => obj.patch(state, 'selection', {collection, toggledRow: -1})
+	state => obj.patch(state, 'selection', {collection, toggledRow: -1, doc: null})
 );
 
 const createCollection = (db, collection) => request
@@ -77,7 +78,7 @@ const createCollection = (db, collection) => request
 		state => Object.assign(
 			{},
 			obj.patch(state, 'selection', {collection, toggledRow: -1}),
-			{documents: [], collections: state.collections.concat([collection])}
+			{documents: [], collections: state.collections.concat([collection]), doc: null}
 		)
 	));
 
@@ -87,6 +88,20 @@ const toggleRow = index => stream.onNext(
 			? -1
 			: index
 	})
+);
+
+const create = () => stream.onNext(
+	state => Object.assign({}, state, {doc: {}})
+);
+
+const edit = doc => stream.onNext(
+	state => Object.assign({}, state, {doc})
+);
+
+const save = (db, collection, doc) => {};
+
+const cancel = () => stream.onNext(
+	state => Object.assign({}, state, {doc: null})
 );
 
 module.exports = {
@@ -99,5 +114,9 @@ module.exports = {
 	getDocuments,
 	setCollection,
 	createCollection,
-	toggleRow
+	toggleRow,
+	create,
+	edit,
+	save,
+	cancel
 };

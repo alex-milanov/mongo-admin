@@ -14739,7 +14739,7 @@ const hyperHelpers = [
 	'h1', 'h2', 'h3', 'h4', 'section', 'header', 'article',
 	'div', 'p', 'span', 'pre', 'code', 'a', 'dd', 'dt', 'hr', 'br', 'b', 'i',
 	'table', 'thead', 'tbody', 'th', 'tr', 'td', 'ul', 'ol', 'li',
-	'form', 'fieldset', 'legend', 'input', 'label', 'button', 'select', 'option',
+	'form', 'fieldset', 'legend', 'input', 'textarea', 'label', 'button', 'select', 'option',
 	'canvas', 'video'
 ].reduce(
 	(o, tag) => {
@@ -46950,6 +46950,7 @@ var init = function init() {
 				collection: null,
 				toggledRow: -1
 			},
+			doc: null,
 			dbs: [],
 			collections: [],
 			documents: []
@@ -46963,21 +46964,21 @@ var getCollections = function getCollections(db) {
 		return res.body;
 	}).subscribe(function (collections) {
 		return stream.onNext(function (state) {
-			return Object.assign({}, state, { collections: collections });
+			return Object.assign({}, state, { collections: collections, doc: null });
 		});
 	});
 };
 
 var setDb = function setDb(db) {
 	stream.onNext(function (state) {
-		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [] });
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [], doc: null });
 	});
 	getCollections(db);
 };
 
 var createDb = function createDb(db) {
 	return stream.onNext(function (state) {
-		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [] });
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null });
 	});
 };
 
@@ -46986,21 +46987,21 @@ var getDocuments = function getDocuments(db, collection) {
 		return res.body;
 	}).subscribe(function (documents) {
 		return stream.onNext(function (state) {
-			return Object.assign({}, state, { documents: documents });
+			return Object.assign({}, state, { documents: documents, doc: null });
 		});
 	});
 };
 
 var setCollection = function setCollection(collection) {
 	return stream.onNext(function (state) {
-		return obj.patch(state, 'selection', { collection: collection, toggledRow: -1 });
+		return obj.patch(state, 'selection', { collection: collection, toggledRow: -1, doc: null });
 	});
 };
 
 var createCollection = function createCollection(db, collection) {
 	return request.post('http://localhost:8080/api/dbs/' + db + '/' + collection).observe().subscribe(function () {
 		return stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), { documents: [], collections: state.collections.concat([collection]) });
+			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), { documents: [], collections: state.collections.concat([collection]), doc: null });
 		});
 	});
 };
@@ -47010,6 +47011,26 @@ var toggleRow = function toggleRow(index) {
 		return obj.patch(state, 'selection', {
 			toggledRow: state.selection.toggledRow === index ? -1 : index
 		});
+	});
+};
+
+var create = function create() {
+	return stream.onNext(function (state) {
+		return Object.assign({}, state, { doc: {} });
+	});
+};
+
+var edit = function edit(doc) {
+	return stream.onNext(function (state) {
+		return Object.assign({}, state, { doc: doc });
+	});
+};
+
+var save = function save(db, collection, doc) {};
+
+var cancel = function cancel() {
+	return stream.onNext(function (state) {
+		return Object.assign({}, state, { doc: null });
 	});
 };
 
@@ -47023,7 +47044,11 @@ module.exports = {
 	getDocuments: getDocuments,
 	setCollection: setCollection,
 	createCollection: createCollection,
-	toggleRow: toggleRow
+	toggleRow: toggleRow,
+	create: create,
+	edit: edit,
+	save: save,
+	cancel: cancel
 };
 
 },{"iblokz":37,"rx":110}],129:[function(require,module,exports){
@@ -47052,7 +47077,68 @@ vdom.patchStream(ui$, '#ui');
 
 window.actions = actions;
 
-},{"./actions":128,"./ui":130,"iblokz":37,"rx":110}],130:[function(require,module,exports){
+},{"./actions":128,"./ui":131,"iblokz":37,"rx":110}],130:[function(require,module,exports){
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+var _require$adapters$vdo = require('iblokz').adapters.vdom;
+
+var section = _require$adapters$vdo.section;
+var h1 = _require$adapters$vdo.h1;
+var h2 = _require$adapters$vdo.h2;
+var i = _require$adapters$vdo.i;
+var select = _require$adapters$vdo.select;
+var option = _require$adapters$vdo.option;
+var ul = _require$adapters$vdo.ul;
+var li = _require$adapters$vdo.li;
+var div = _require$adapters$vdo.div;
+var table = _require$adapters$vdo.table;
+var tbody = _require$adapters$vdo.tbody;
+var thead = _require$adapters$vdo.thead;
+var tr = _require$adapters$vdo.tr;
+var td = _require$adapters$vdo.td;
+var th = _require$adapters$vdo.th;
+var pre = _require$adapters$vdo.pre;
+var form = _require$adapters$vdo.form;
+var textarea = _require$adapters$vdo.textarea;
+var input = _require$adapters$vdo.input;
+var button = _require$adapters$vdo.button;
+
+
+module.exports = function (_ref) {
+	var state = _ref.state;
+	var actions = _ref.actions;
+	return section('#content', [ul('#breadcrumb', [li('.fa.fa-home'), li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), state.doc !== null ? form('#document', [h2(_typeof(state.doc) === 'object' && typeof state.doc._id !== 'undefined' ? 'Edit Document: ' + state.doc._id : 'Create new Document'), button('.green.big', { attrs: { type: 'submit' } }, 'Save'), button('.yellow.big', { on: { click: function click(ev) {
+				return actions.cancel();
+			} } }, 'Cancel'), textarea({ attrs: { name: 'doc' } }, JSON.stringify(state.doc, null, 2))]) : '', state.selection.collection ? section('#collection', [state.doc === null ? button('.big', {
+		on: { click: function click(el) {
+				return actions.create();
+			} }
+	}, 'Create new Document') : '', state.collections.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
+		return Object.assign(m, o);
+	}, {})).map(function (field) {
+		return th(field);
+	})))]), tbody(state.documents.map(function (doc, index) {
+		return tr({
+			class: {
+				toggled: index === state.selection.toggledRow
+			}
+		}, [td([button('.fa.fa-pencil.blue', {
+			on: { click: function click(el) {
+					return actions.edit(doc);
+				} }
+		}), button('.fa.fa-trash.red'), button('.fa.fa-expand.green', {
+			on: { click: function click(el) {
+					return actions.toggleRow(index);
+				} }
+		})])].concat(Object.keys(doc).map(function (field) {
+			return td(typeof doc[field] === 'string' ? [div(doc[field])] : [pre(JSON.stringify(doc[field], null, 2))]);
+		})));
+	}))]) : '']) : '']);
+};
+
+},{"iblokz":37}],131:[function(require,module,exports){
 'use strict';
 
 var _require$adapters$vdo = require('iblokz').adapters.vdom;
@@ -47075,6 +47161,8 @@ var pre = _require$adapters$vdo.pre;
 var button = _require$adapters$vdo.button;
 var div = _require$adapters$vdo.div;
 
+
+var content = require('./content');
 
 module.exports = function (_ref) {
 	var state = _ref.state;
@@ -47109,23 +47197,7 @@ module.exports = function (_ref) {
 				return actions.createCollection(state.selection.db, prompt('Enter Collection Name'));
 			}
 		}
-	}, 'Create new Collection')]) : '']), section('#content', [ul('#breadcrumb', [li('.fa.fa-home'), li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), state.selection.collection ? section('#collection', [button('.big', 'Create new Document'), state.collections.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
-		return Object.assign(m, o);
-	}, {})).map(function (field) {
-		return th(field);
-	})))]), tbody(state.documents.map(function (doc, index) {
-		return tr({
-			class: {
-				toggled: index === state.selection.toggledRow
-			}
-		}, [td([button('.fa.fa-pencil.blue'), button('.fa.fa-trash.red'), button('.fa.fa-expand.green', {
-			on: { click: function click(el) {
-					return actions.toggleRow(index);
-				} }
-		})])].concat(Object.keys(doc).map(function (field) {
-			return td(typeof doc[field] === 'string' ? [div(doc[field])] : [pre(JSON.stringify(doc[field], null, 2))]);
-		})));
-	}))]) : '']) : ''])]);
+	}, 'Create new Collection')]) : '']), content({ state: state, actions: actions })]);
 };
 
-},{"iblokz":37}]},{},[129]);
+},{"./content":130,"iblokz":37}]},{},[129]);

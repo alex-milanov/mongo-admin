@@ -2237,6 +2237,8 @@ button {
     color: red; }
   button.blue {
     color: blue; }
+  button.yellow {
+    color: yellow; }
   button:hover {
     opacity: 1;
     border: 1px solid #ddd;
@@ -2381,6 +2383,9 @@ button {
         content: '\f054 ';
         font-size: 12px;
         margin: 0px 5px; }
+  #ui #content #document textarea {
+    width: 100%;
+    min-height: 400px; }
   #ui #content #collection {
     width: 100%; }
     #ui #content #collection > * {
