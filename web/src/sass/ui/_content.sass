@@ -12,7 +12,7 @@
 
 		#breadcrumb
 			+no-margin-padding
-			margin: 10px
+			margin: 10px 0px
 			list-style-type: none
 			li
 				+no-margin-padding
@@ -22,19 +22,40 @@
 					content: '\f054 '
 					font-size: 12px
 					margin: 0px 5px
+		#collection
+			width: 100%
+			> *
+				margin: 10px 0px
 		table#results
-			margin-top: 20px
 			font-size: 14px
 			line-height: 24px
 			border-collapse: collapse
+			box-shadow: 0px 0px 5px #ddd
+			border: 1px solid #ddd
+			width: 100%
+			thead
+				border-bottom: 2px solid #e5e5e5
+			tbody tr
+				color: #777
+				&:hover
+					color: #333
+				&:not(:first-child)
+					border-top: 1px solid #eee
 			th, td
+				font-size: 12px
 				padding: 5px
-				border: 1px solid #aaa
 			td
 				vertical-align: top
-			tr pre
+				color: #333
+				&:first-child
+					text-align: center
+				&:not(:first-child)
+					border-left: 1px solid #eee
+			tr pre, tr div
 				+no-margin-padding
 				overflow: hidden
-				max-height: 48px
-			tr.toggled pre
-				max-height: inherit
+				max-height: 24px
+				max-width: 200px
+			tr.toggled
+				div, pre
+					max-height: inherit

@@ -9,9 +9,8 @@ const actions = require('./actions');
 const ui = require('./ui');
 
 const state$ = actions.stream
-	.scan((state, reducer) => reducer(state), {})
-	.distinctUntilChanged(state => state)
-	.map(state => (console.log(state), state));
+	.scan((state, change) => change(state), {})
+	.distinctUntilChanged(state => state);
 
 const ui$ = state$.map(state => ui({state, actions}));
 

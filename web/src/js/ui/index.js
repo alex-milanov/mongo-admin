@@ -2,7 +2,7 @@
 
 const {
 	section, h1, h2, i, select, option, ul, li,
-	table, tbody, thead, tr, td, th, pre, button
+	table, tbody, thead, tr, td, th, pre, button, div
 } = require('iblokz').adapters.vdom;
 
 module.exports = ({state, actions}) => section('#ui', [
@@ -49,32 +49,45 @@ module.exports = ({state, actions}) => section('#ui', [
 	]),
 	section('#content', [
 		ul('#breadcrumb', [
+			li('.fa.fa-home'),
 			li(state.selection.server),
 			state.selection.db && li(state.selection.db) || '',
 			state.selection.collection && li(state.selection.collection) || ''
 		]),
-		table('#results', [
-			thead([
-				tr(Object.keys(state.documents.reduce((m, o) => Object.assign(m, o), {}))
-					.map(field =>
-						th(field)
-					)
-				)
-			]),
-			tbody(state.documents.map((doc, index) =>
-				tr({
-					on: {click: el => actions.toggleRow(index)},
-					class: {
-						toggled: (index === state.selection.toggledRow)
-					}
-				}, Object.keys(doc).map(field =>
-					td(
-						(typeof doc[field] === 'string')
-							? doc[field]
-							: [pre(JSON.stringify(doc[field], null, 2))]
-					)
-				))
-			))
-		])
+		(state.selection.collection) ?
+			section('#collection', [
+				button('.big', 'Create new Document'),
+				(state.collections.length > 0) ?
+					table('#results', [
+						thead([
+							tr([
+								th('')
+							].concat(Object.keys(state.documents.reduce((m, o) => Object.assign(m, o), {})).map(
+								field => th(field)
+							)))
+						]),
+						tbody(state.documents.map((doc, index) =>
+							tr({
+								class: {
+									toggled: (index === state.selection.toggledRow)
+								}
+							}, [
+								td([
+									button('.fa.fa-pencil.blue'),
+									button('.fa.fa-trash.red'),
+									button('.fa.fa-expand.green', {
+										on: {click: el => actions.toggleRow(index)}
+									})
+								])
+							].concat(Object.keys(doc).map(field =>
+								td(
+									(typeof doc[field] === 'string')
+										? [div(doc[field])]
+										: [pre(JSON.stringify(doc[field], null, 2))]
+								)
+							)))
+						))
+					]) : ''
+			]) : ''
 	])
 ]);

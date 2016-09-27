@@ -67,7 +67,7 @@ const getDocuments = (db, collection) => request
 	));
 
 const setCollection = collection => stream.onNext(
-	state => obj.patch(state, 'selection', {collection})
+	state => obj.patch(state, 'selection', {collection, toggledRow: -1})
 );
 
 const createCollection = (db, collection) => request

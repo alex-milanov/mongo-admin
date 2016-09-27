@@ -2,3 +2,36 @@
 
 body
 	font-family: $mongo-admin-font
+
+button
+	+clear-form-control
+	margin: 5px
+	padding: 0px 5px
+	border: 1px solid #ddd
+	box-shadow: 0px 0px 15px #ddd
+	font-size: 12px
+	cursor: pointer
+	line-height: 20px
+	height: 20px
+	opacity: 0.4
+	transition: opacity 0.1s
+	&.big
+		font-size: 14px
+		height: 24px
+		line-height: 24px
+	&.green
+		color: green
+	&.red
+		color: red
+	&.blue
+		color: blue
+	&:hover
+		opacity: 1
+		border: 1px solid #ddd
+		background: lighten(#f2f8f0, 1%)
+	&:active
+		//background: #e5e5e5
+		border: 1px solid #ddd
+		box-shadow: inset 0px 0px 5px #ddd
+	&:focus
+		border: 1px solid #ddd

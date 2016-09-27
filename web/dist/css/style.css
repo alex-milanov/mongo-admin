@@ -2200,6 +2200,53 @@ html {
 body {
   font-family: "Open Sans", Helvetica, Arial, sans-serif; }
 
+button {
+  margin: 0px;
+  padding: 0px;
+  border: 0px;
+  outline: none;
+  border-radius: 0px;
+  border-image: none;
+  box-sizing: border-box;
+  background: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  margin: 5px;
+  padding: 0px 5px;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 15px #ddd;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 20px;
+  height: 20px;
+  opacity: 0.4;
+  transition: opacity 0.1s; }
+  button:focus, button:active, button::-moz-focus-inner, button:-moz-focusring, button::-moz-focus-outer {
+    border: none;
+    outline: none;
+    border-radius: 0px;
+    border-image: none; }
+  button.big {
+    font-size: 14px;
+    height: 24px;
+    line-height: 24px; }
+  button.green {
+    color: green; }
+  button.red {
+    color: red; }
+  button.blue {
+    color: blue; }
+  button:hover {
+    opacity: 1;
+    border: 1px solid #ddd;
+    background: #f5faf3; }
+  button:active {
+    border: 1px solid #ddd;
+    box-shadow: inset 0px 0px 5px #ddd; }
+  button:focus {
+    border: 1px solid #ddd; }
+
 #ui #left-pane {
   position: absolute;
   top: 0px;
@@ -2234,39 +2281,8 @@ body {
     line-height: 24px;
     height: 24px; }
     #ui #left-pane > section button {
-      margin: 0px;
-      padding: 0px;
-      border: 0px;
-      outline: none;
-      border-radius: 0px;
-      border-image: none;
-      box-sizing: border-box;
-      background: inherit;
-      font-size: inherit;
-      font-family: inherit;
-      font-weight: inherit;
       width: 100%;
-      margin: 5px 0px;
-      border: 1px solid #ddd;
-      box-shadow: 0px 0px 15px #ddd;
-      font-size: 12px;
-      cursor: pointer;
-      opacity: 0.4;
-      transition: opacity 0.1s; }
-      #ui #left-pane > section button:focus, #ui #left-pane > section button:active, #ui #left-pane > section button::-moz-focus-inner, #ui #left-pane > section button:-moz-focusring, #ui #left-pane > section button::-moz-focus-outer {
-        border: none;
-        outline: none;
-        border-radius: 0px;
-        border-image: none; }
-      #ui #left-pane > section button:hover {
-        opacity: 1;
-        border: 1px solid #ddd;
-        background: #f5faf3; }
-      #ui #left-pane > section button:active {
-        border: 1px solid #ddd;
-        box-shadow: inset 0px 0px 5px #ddd; }
-      #ui #left-pane > section button:focus {
-        border: 1px solid #ddd; }
+      margin: 5px 0px; }
   #ui #left-pane #db-select {
     margin: 40px 0px; }
     #ui #left-pane #db-select::after {
@@ -2354,7 +2370,7 @@ body {
   #ui #content #breadcrumb {
     margin: 0px;
     padding: 0px;
-    margin: 10px;
+    margin: 10px 0px;
     list-style-type: none; }
     #ui #content #breadcrumb li {
       margin: 0px;
@@ -2365,20 +2381,40 @@ body {
         content: '\f054 ';
         font-size: 12px;
         margin: 0px 5px; }
+  #ui #content #collection {
+    width: 100%; }
+    #ui #content #collection > * {
+      margin: 10px 0px; }
   #ui #content table#results {
-    margin-top: 20px;
     font-size: 14px;
     line-height: 24px;
-    border-collapse: collapse; }
+    border-collapse: collapse;
+    box-shadow: 0px 0px 5px #ddd;
+    border: 1px solid #ddd;
+    width: 100%; }
+    #ui #content table#results thead {
+      border-bottom: 2px solid #e5e5e5; }
+    #ui #content table#results tbody tr {
+      color: #777; }
+      #ui #content table#results tbody tr:hover {
+        color: #333; }
+      #ui #content table#results tbody tr:not(:first-child) {
+        border-top: 1px solid #eee; }
     #ui #content table#results th, #ui #content table#results td {
-      padding: 5px;
-      border: 1px solid #aaa; }
+      font-size: 12px;
+      padding: 5px; }
     #ui #content table#results td {
-      vertical-align: top; }
-    #ui #content table#results tr pre {
+      vertical-align: top;
+      color: #333; }
+      #ui #content table#results td:first-child {
+        text-align: center; }
+      #ui #content table#results td:not(:first-child) {
+        border-left: 1px solid #eee; }
+    #ui #content table#results tr pre, #ui #content table#results tr div {
       margin: 0px;
       padding: 0px;
       overflow: hidden;
-      max-height: 48px; }
-    #ui #content table#results tr.toggled pre {
+      max-height: 24px;
+      max-width: 200px; }
+    #ui #content table#results tr.toggled div, #ui #content table#results tr.toggled pre {
       max-height: inherit; }

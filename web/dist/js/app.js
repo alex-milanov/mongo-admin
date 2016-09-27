@@ -46993,7 +46993,7 @@ var getDocuments = function getDocuments(db, collection) {
 
 var setCollection = function setCollection(collection) {
 	return stream.onNext(function (state) {
-		return obj.patch(state, 'selection', { collection: collection });
+		return obj.patch(state, 'selection', { collection: collection, toggledRow: -1 });
 	});
 };
 
@@ -47037,12 +47037,10 @@ var vdom = require('iblokz').adapters.vdom;
 var actions = require('./actions');
 var ui = require('./ui');
 
-var state$ = actions.stream.scan(function (state, reducer) {
-	return reducer(state);
+var state$ = actions.stream.scan(function (state, change) {
+	return change(state);
 }, {}).distinctUntilChanged(function (state) {
 	return state;
-}).map(function (state) {
-	return console.log(state), state;
 });
 
 var ui$ = state$.map(function (state) {
@@ -47075,6 +47073,7 @@ var td = _require$adapters$vdo.td;
 var th = _require$adapters$vdo.th;
 var pre = _require$adapters$vdo.pre;
 var button = _require$adapters$vdo.button;
+var div = _require$adapters$vdo.div;
 
 
 module.exports = function (_ref) {
@@ -47110,22 +47109,23 @@ module.exports = function (_ref) {
 				return actions.createCollection(state.selection.db, prompt('Enter Collection Name'));
 			}
 		}
-	}, 'Create new Collection')]) : '']), section('#content', [ul('#breadcrumb', [li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), table('#results', [thead([tr(Object.keys(state.documents.reduce(function (m, o) {
+	}, 'Create new Collection')]) : '']), section('#content', [ul('#breadcrumb', [li('.fa.fa-home'), li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), state.selection.collection ? section('#collection', [button('.big', 'Create new Document'), state.collections.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
 		return Object.assign(m, o);
 	}, {})).map(function (field) {
 		return th(field);
-	}))]), tbody(state.documents.map(function (doc, index) {
+	})))]), tbody(state.documents.map(function (doc, index) {
 		return tr({
-			on: { click: function click(el) {
-					return actions.toggleRow(index);
-				} },
 			class: {
 				toggled: index === state.selection.toggledRow
 			}
-		}, Object.keys(doc).map(function (field) {
-			return td(typeof doc[field] === 'string' ? doc[field] : [pre(JSON.stringify(doc[field], null, 2))]);
-		}));
-	}))])])]);
+		}, [td([button('.fa.fa-pencil.blue'), button('.fa.fa-trash.red'), button('.fa.fa-expand.green', {
+			on: { click: function click(el) {
+					return actions.toggleRow(index);
+				} }
+		})])].concat(Object.keys(doc).map(function (field) {
+			return td(typeof doc[field] === 'string' ? [div(doc[field])] : [pre(JSON.stringify(doc[field], null, 2))]);
+		})));
+	}))]) : '']) : ''])]);
 };
 
 },{"iblokz":37}]},{},[129]);
