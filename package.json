@@ -30,6 +30,7 @@
     "font-awesome": "^4.6.3",
     "iblokz": "./iblokz",
     "method-override": "^2.3.6",
+    "mongo-admin-electron": "file:electron",
     "mongoose": "^4.5.7",
     "rx": "^4.1.0",
     "snabbdom": "^0.5.3",

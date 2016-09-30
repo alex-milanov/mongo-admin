@@ -27,5 +27,6 @@ createInterface = connection => ({
 });
 
 module.exports = {
-	connect
+	connect,
+	ObjectId: mongoose.Types.ObjectId
 };

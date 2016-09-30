@@ -14,7 +14,9 @@ const recipe = {
 	post: {
 		'electron/app/css': 'web/dist/css',
 		'electron/app/fonts': 'web/dist/fonts',
-		'electron/app/index.html': 'web/dist/index.html'
+		'electron/app/index.html': 'web/dist/index.html',
+		'electron/app/js/actions': 'web/src/js/actions',
+		'electron/app/js/ui': 'web/src/js/ui'
 	}
 };
 

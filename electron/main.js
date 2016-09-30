@@ -9,23 +9,47 @@ const mongo = require('iblokz').adapters.mongo;
 
 const db = mongo.connect('mongodb://localhost');
 
-ipc.on('list databases', ev => {
+ipc.on('list dbs', ev => {
 	db.listDatabases().subscribe(
-		list => ev.sender.send('databases list', list)
+		list => ev.sender.send('dbs list', list)
 	);
 });
 
-ipc.on('list collections', (ev, dbName) => {
-	db.use(dbName).listCollections().subscribe(
+ipc.on('list collections', (ev, params) => {
+	db.use(params.split('/')[1]).listCollections().subscribe(
 		list => ev.sender.send('collections list', list)
 	);
 });
 
-ipc.on('exec request', (ev, dbName, collection) => {
-	db.use(dbName).connection
-		.collection(collection).find().toArray().then(
-			list => ev.sender.send('request executed', list)
+ipc.on('create collections', (ev, params) => {
+	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
+	collection.save({test: true})
+		.then(() => collection.remove({}))
+		.then(() => ev.sender.send('collections create', {success: true}));
+});
+
+ipc.on('list documents', (ev, params) => {
+	db.use(params.split('/')[1]).connection
+		.collection(params.split('/')[2]).find().toArray().then(
+			list => ev.sender.send('documents list', list)
 		);
+});
+
+ipc.on('create documents', (ev, params, doc) => {
+	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
+	collection.save(doc)
+		.then(() => ev.sender.send('documents create', {success: true}));
+});
+
+ipc.on('update documents', (ev, params, doc) => {
+	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
+	const newDoc = Object.keys(doc).reduce((o, key) => (key !== '_id')
+		? ((o[key] = doc[key]), o)
+		: o,
+		{}
+	);
+	collection.update({_id: new mongo.ObjectId(doc._id)}, newDoc)
+		.then(() => ev.sender.send('documents update', {success: true}));
 });
 
 // Keep a global reference of the window object, if you don't, the window will
