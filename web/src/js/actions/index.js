@@ -25,6 +25,7 @@ const init = () => {
 				collection: null,
 				toggledRow: -1
 			},
+			error: null,
 			doc: null,
 			dbs: [],
 			collections: [],
@@ -39,14 +40,14 @@ const getCollections = db => request
 	.observe()
 	.map(res => res.body)
 	.subscribe(collections => stream.onNext(
-		state => Object.assign({}, state, {collections, doc: null})
+		state => Object.assign({}, state, {collections, doc: null, error: null})
 	));
 
 const setDb = db => {
 	stream.onNext(
 		state => Object.assign({},
 			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
-			{documents: [], doc: null}
+			{documents: [], doc: null, error: null}
 		)
 	);
 	getCollections(db);
@@ -55,7 +56,7 @@ const setDb = db => {
 const createDb = db => stream.onNext(
 	state => Object.assign({},
 		obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
-		{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null}
+		{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null}
 	)
 );
 
@@ -64,21 +65,22 @@ const getDocuments = (db, collection) => request
 	.observe()
 	.map(res => res.body)
 	.subscribe(documents => stream.onNext(
-		state => Object.assign({}, state, {documents, doc: null})
+		state => Object.assign({}, state, {documents, doc: null, error: null})
 	));
 
 const setCollection = collection => stream.onNext(
-	state => obj.patch(state, 'selection', {collection, toggledRow: -1, doc: null})
+	state => obj.patch(state, 'selection', {collection, toggledRow: -1, doc: null, error: null})
 );
 
 const createCollection = (db, collection) => request
-	.post(`http://localhost:8080/api/dbs/${db}/${collection}`)
+	.post(`http://localhost:8080/api/dbs/${db}`)
+	.send({collection})
 	.observe()
 	.subscribe(() => stream.onNext(
 		state => Object.assign(
 			{},
 			obj.patch(state, 'selection', {collection, toggledRow: -1}),
-			{documents: [], collections: state.collections.concat([collection]), doc: null}
+			{documents: [], collections: state.collections.concat([collection]), doc: null, error: null}
 		)
 	));
 
@@ -91,17 +93,45 @@ const toggleRow = index => stream.onNext(
 );
 
 const create = () => stream.onNext(
-	state => Object.assign({}, state, {doc: {}})
+	state => Object.assign({}, state, {doc: {}, error: null})
 );
 
 const edit = doc => stream.onNext(
-	state => Object.assign({}, state, {doc})
+	state => Object.assign({}, state, {doc, error: null})
 );
 
-const save = (db, collection, doc) => {};
+const save = (db, collection, doc) => (doc._id !== undefined)
+	// update
+	?	request
+		.put(`http://localhost:8080/api/dbs/${db}/${collection}/${doc._id}`)
+		.send(doc)
+		.set('Accept', 'application/json')
+		.observe()
+		.subscribe(() => {
+			stream.onNext(
+				state => Object.assign({}, state, {doc: null, error: null})
+			);
+			getDocuments(db, collection);
+		})
+	// create
+	:	request
+		.post(`http://localhost:8080/api/dbs/${db}/${collection}`)
+		.send(doc)
+		.set('Accept', 'application/json')
+		.observe()
+		.subscribe(() => {
+			stream.onNext(
+				state => Object.assign({}, state, {doc: null, error: null})
+			);
+			getDocuments(db, collection);
+		});
 
 const cancel = () => stream.onNext(
-	state => Object.assign({}, state, {doc: null})
+	state => Object.assign({}, state, {doc: null, error: null})
+);
+
+const errorOnSave = error => stream.onNext(
+	state => Object.assign({}, state, {error})
 );
 
 module.exports = {
@@ -118,5 +148,6 @@ module.exports = {
 	create,
 	edit,
 	save,
+	errorOnSave,
 	cancel
 };

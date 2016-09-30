@@ -46950,6 +46950,7 @@ var init = function init() {
 				collection: null,
 				toggledRow: -1
 			},
+			error: null,
 			doc: null,
 			dbs: [],
 			collections: [],
@@ -46964,21 +46965,21 @@ var getCollections = function getCollections(db) {
 		return res.body;
 	}).subscribe(function (collections) {
 		return stream.onNext(function (state) {
-			return Object.assign({}, state, { collections: collections, doc: null });
+			return Object.assign({}, state, { collections: collections, doc: null, error: null });
 		});
 	});
 };
 
 var setDb = function setDb(db) {
 	stream.onNext(function (state) {
-		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [], doc: null });
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [], doc: null, error: null });
 	});
 	getCollections(db);
 };
 
 var createDb = function createDb(db) {
 	return stream.onNext(function (state) {
-		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null });
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
 	});
 };
 
@@ -46987,21 +46988,21 @@ var getDocuments = function getDocuments(db, collection) {
 		return res.body;
 	}).subscribe(function (documents) {
 		return stream.onNext(function (state) {
-			return Object.assign({}, state, { documents: documents, doc: null });
+			return Object.assign({}, state, { documents: documents, doc: null, error: null });
 		});
 	});
 };
 
 var setCollection = function setCollection(collection) {
 	return stream.onNext(function (state) {
-		return obj.patch(state, 'selection', { collection: collection, toggledRow: -1, doc: null });
+		return obj.patch(state, 'selection', { collection: collection, toggledRow: -1, doc: null, error: null });
 	});
 };
 
 var createCollection = function createCollection(db, collection) {
-	return request.post('http://localhost:8080/api/dbs/' + db + '/' + collection).observe().subscribe(function () {
+	return request.post('http://localhost:8080/api/dbs/' + db).send({ collection: collection }).observe().subscribe(function () {
 		return stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), { documents: [], collections: state.collections.concat([collection]), doc: null });
+			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), { documents: [], collections: state.collections.concat([collection]), doc: null, error: null });
 		});
 	});
 };
@@ -47016,21 +47017,43 @@ var toggleRow = function toggleRow(index) {
 
 var create = function create() {
 	return stream.onNext(function (state) {
-		return Object.assign({}, state, { doc: {} });
+		return Object.assign({}, state, { doc: {}, error: null });
 	});
 };
 
 var edit = function edit(doc) {
 	return stream.onNext(function (state) {
-		return Object.assign({}, state, { doc: doc });
+		return Object.assign({}, state, { doc: doc, error: null });
 	});
 };
 
-var save = function save(db, collection, doc) {};
+var save = function save(db, collection, doc) {
+	return doc._id !== undefined ?
+	// update
+	request.put('http://localhost:8080/api/dbs/' + db + '/' + collection + '/' + doc._id).send(doc).set('Accept', 'application/json').observe().subscribe(function () {
+		stream.onNext(function (state) {
+			return Object.assign({}, state, { doc: null, error: null });
+		});
+		getDocuments(db, collection);
+	})
+	// create
+	: request.post('http://localhost:8080/api/dbs/' + db + '/' + collection).send(doc).set('Accept', 'application/json').observe().subscribe(function () {
+		stream.onNext(function (state) {
+			return Object.assign({}, state, { doc: null, error: null });
+		});
+		getDocuments(db, collection);
+	});
+};
 
 var cancel = function cancel() {
 	return stream.onNext(function (state) {
-		return Object.assign({}, state, { doc: null });
+		return Object.assign({}, state, { doc: null, error: null });
+	});
+};
+
+var errorOnSave = function errorOnSave(error) {
+	return stream.onNext(function (state) {
+		return Object.assign({}, state, { error: error });
 	});
 };
 
@@ -47048,6 +47071,7 @@ module.exports = {
 	create: create,
 	edit: edit,
 	save: save,
+	errorOnSave: errorOnSave,
 	cancel: cancel
 };
 
@@ -47082,6 +47106,9 @@ window.actions = actions;
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
+var Rx = require('rx');
+var $ = Rx.Observable;
+
 var _require$adapters$vdo = require('iblokz').adapters.vdom;
 
 var section = _require$adapters$vdo.section;
@@ -47093,6 +47120,7 @@ var option = _require$adapters$vdo.option;
 var ul = _require$adapters$vdo.ul;
 var li = _require$adapters$vdo.li;
 var div = _require$adapters$vdo.div;
+var p = _require$adapters$vdo.p;
 var table = _require$adapters$vdo.table;
 var tbody = _require$adapters$vdo.tbody;
 var thead = _require$adapters$vdo.thead;
@@ -47109,13 +47137,26 @@ var button = _require$adapters$vdo.button;
 module.exports = function (_ref) {
 	var state = _ref.state;
 	var actions = _ref.actions;
-	return section('#content', [ul('#breadcrumb', [li('.fa.fa-home'), li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), state.doc !== null ? form('#document', [h2(_typeof(state.doc) === 'object' && typeof state.doc._id !== 'undefined' ? 'Edit Document: ' + state.doc._id : 'Create new Document'), button('.green.big', { attrs: { type: 'submit' } }, 'Save'), button('.yellow.big', { on: { click: function click(ev) {
+	return section('#content', [ul('#breadcrumb', [li('.fa.fa-home'), li(state.selection.server), state.selection.db && li(state.selection.db) || '', state.selection.collection && li(state.selection.collection) || '']), state.doc !== null ? form('#document', {
+		on: {
+			submit: function submit(ev) {
+				$.start(function () {
+					return Object.assign({}, state.selection, { doc: JSON.parse(ev.target.elements['doc'].value) });
+				}).subscribe(function (s) {
+					return actions.save(s.db, s.collection, s.doc);
+				}, function (err) {
+					return actions.errorOnSave(err);
+				});
+				ev.preventDefault();
+			}
+		}
+	}, [h2(_typeof(state.doc) === 'object' && typeof state.doc._id !== 'undefined' ? 'Edit Document: ' + state.doc._id : 'Create new Document'), state.error ? div('.error', state.error.message) : '', button('.green.big', { attrs: { type: 'submit' } }, 'Save'), button('.big', { on: { click: function click(ev) {
 				return actions.cancel();
 			} } }, 'Cancel'), textarea({ attrs: { name: 'doc' } }, JSON.stringify(state.doc, null, 2))]) : '', state.selection.collection ? section('#collection', [state.doc === null ? button('.big', {
 		on: { click: function click(el) {
 				return actions.create();
 			} }
-	}, 'Create new Document') : '', state.collections.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
+	}, 'Create new Document') : '', state.documents.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
 		return Object.assign(m, o);
 	}, {})).map(function (field) {
 		return th(field);
@@ -47138,7 +47179,7 @@ module.exports = function (_ref) {
 	}))]) : '']) : '']);
 };
 
-},{"iblokz":37}],131:[function(require,module,exports){
+},{"iblokz":37,"rx":110}],131:[function(require,module,exports){
 'use strict';
 
 var _require$adapters$vdo = require('iblokz').adapters.vdom;

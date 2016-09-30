@@ -2215,7 +2215,7 @@ button {
   margin: 5px;
   padding: 0px 5px;
   border: 1px solid #ddd;
-  box-shadow: 0px 0px 15px #ddd;
+  box-shadow: 0px 0px 10px #eee;
   font-size: 12px;
   cursor: pointer;
   line-height: 20px;
@@ -2237,6 +2237,8 @@ button {
     color: red; }
   button.blue {
     color: blue; }
+  button.yellow {
+    color: yellow; }
   button:hover {
     opacity: 1;
     border: 1px solid #ddd;
@@ -2254,7 +2256,7 @@ button {
   left: 0px;
   width: 250px;
   background: #f2f8f0;
-  box-shadow: 0px 0px 5px #ddd;
+  box-shadow: 0px 0px 5px #eee;
   border-right: 1px solid #ddd; }
   #ui #left-pane > * {
     width: 100%;
@@ -2321,7 +2323,7 @@ button {
       -moz-appearance: none;
       appearance: none;
       border: 1px solid #ddd;
-      box-shadow: 0px 0px 15px #ddd;
+      box-shadow: 0px 0px 15px #eee;
       transition: box-shadow 0.5s; }
       #ui #left-pane #db-select select:focus, #ui #left-pane #db-select select:active, #ui #left-pane #db-select select::-moz-focus-inner, #ui #left-pane #db-select select:-moz-focusring, #ui #left-pane #db-select select::-moz-focus-outer {
         border: none;
@@ -2336,12 +2338,12 @@ button {
         color: #000;
         text-shadow: none; }
       #ui #left-pane #db-select select:hover {
-        box-shadow: 0px 0px 15px #ccc; }
+        box-shadow: 0px 0px 15px #ddd; }
   #ui #left-pane #collections {
     margin: 5px 0px;
     padding: 0px;
     border: 1px solid #ddd;
-    box-shadow: 0px 0px 15px #ddd;
+    box-shadow: 0px 0px 15px #eee;
     list-style-type: none; }
     #ui #left-pane #collections li {
       padding: 0px 10px;
@@ -2353,7 +2355,7 @@ button {
       #ui #left-pane #collections li:not(:first-child) {
         border-top: 1px solid #ddd; }
       #ui #left-pane #collections li.active {
-        box-shadow: inset 0px 0px 5px #ddd; }
+        box-shadow: inset 0px 0px 5px #eee; }
       #ui #left-pane #collections li:hover {
         background: #f5faf3; }
 
@@ -2381,6 +2383,21 @@ button {
         content: '\f054 ';
         font-size: 12px;
         margin: 0px 5px; }
+  #ui #content h2 {
+    font-size: 18px;
+    margin: 5px 0px; }
+  #ui #content #document .error {
+    font-size: 12px;
+    color: red; }
+  #ui #content #document textarea {
+    width: 100%;
+    min-height: 400px;
+    border-radius: 0px;
+    border: 1px solid #eee;
+    box-shadow: 0px 0px 5px #eee; }
+  #ui #content #document button {
+    margin: 5px 5px 5px 0px;
+    min-width: 100px; }
   #ui #content #collection {
     width: 100%; }
     #ui #content #collection > * {
@@ -2389,9 +2406,12 @@ button {
     font-size: 14px;
     line-height: 24px;
     border-collapse: collapse;
-    box-shadow: 0px 0px 5px #ddd;
+    box-shadow: 0px 0px 5px #eee;
     border: 1px solid #ddd;
-    width: 100%; }
+    width: 100%;
+    transition: box-shadow .3s; }
+    #ui #content table#results:hover {
+      box-shadow: 0px 0px 5px #ddd; }
     #ui #content table#results thead {
       border-bottom: 2px solid #e5e5e5; }
     #ui #content table#results tbody tr {
