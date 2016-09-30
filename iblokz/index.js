@@ -14,5 +14,8 @@ module.exports = {
 		obj: require('./common/obj'),
 		str: require('./common/str'),
 		cli: require('./common/cli')
+	},
+	app: {
+		store: require('./app/store')
 	}
 };
