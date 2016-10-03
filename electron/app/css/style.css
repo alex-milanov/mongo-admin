@@ -2266,7 +2266,7 @@ button {
     margin: 0px;
     padding: 0px; }
   #ui #left-pane h1 {
-    font-size: 18px;
+    font-size: 24px;
     text-align: center;
     padding: 0px;
     margin-top: 35px;
@@ -2351,12 +2351,15 @@ button {
       font-size: 12px;
       line-height: 24px;
       height: 24px;
-      transition: background .3s; }
+      transition: background .3s;
+      color: #777; }
       #ui #left-pane #collections li:not(:first-child) {
         border-top: 1px solid #ddd; }
       #ui #left-pane #collections li.active {
-        box-shadow: inset 0px 0px 5px #eee; }
+        color: #333;
+        box-shadow: inset 0px 0px 5px #e5e5e5; }
       #ui #left-pane #collections li:hover {
+        color: #333;
         background: #f5faf3; }
 
 #ui #content {

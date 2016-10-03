@@ -14777,7 +14777,7 @@ const fn = require('../common/fn');
 
 const ipcHook = (ipc, action, resourse, path, data) => {
 	ipc.send(`${action} ${resourse}`, path, data);
-	return $.fromCallback(ipc.on, `${resourse} ${action}`, (ev, data) => data);
+	return $.create(o => ipc.on(`${resourse} ${action}`, (ev, data) => o.onNext(data)));
 };
 
 const init = ({type, agent, url}) => fn.switch(type, {
@@ -47198,7 +47198,8 @@ module.exports = function (_ref) {
 			}
 		}
 	}, [h2(_typeof(state.doc) === 'object' && typeof state.doc._id !== 'undefined' ? 'Edit Document: ' + state.doc._id : 'Create new Document'), state.error ? div('.error', state.error.message) : '', button('.green.big', { attrs: { type: 'submit' } }, 'Save'), button('.big', { on: { click: function click(ev) {
-				return actions.cancel();
+				actions.cancel();
+				ev.preventDefault();
 			} } }, 'Cancel'), textarea({ attrs: { name: 'doc' } }, JSON.stringify(state.doc, null, 2))]) : '', state.selection.collection ? section('#collection', [state.doc === null ? button('.big', {
 		on: { click: function click(el) {
 				return actions.create();

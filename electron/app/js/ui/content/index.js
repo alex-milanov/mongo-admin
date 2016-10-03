@@ -34,7 +34,10 @@ module.exports = ({state, actions}) => section('#content', [
 				? `Edit Document: ${state.doc._id}` : 'Create new Document'),
 			(state.error) ? div('.error', state.error.message) : '',
 			button('.green.big', {attrs: {type: 'submit'}}, 'Save'),
-			button('.big', {on: {click: ev => actions.cancel()}}, 'Cancel'),
+			button('.big', {on: {click: ev => {
+				actions.cancel();
+				ev.preventDefault();
+			}}}, 'Cancel'),
 			textarea({attrs: {name: 'doc'}}, JSON.stringify(state.doc, null, 2))
 		]) : '',
 	(state.selection.collection) ?

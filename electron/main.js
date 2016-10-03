@@ -31,7 +31,7 @@ ipc.on('create collections', (ev, params) => {
 ipc.on('list documents', (ev, params) => {
 	db.use(params.split('/')[1]).connection
 		.collection(params.split('/')[2]).find().toArray().then(
-			list => ev.sender.send('documents list', list)
+			list => ev.sender.send('documents list', list.map(d => JSON.parse(JSON.stringify(d))))
 		);
 });
 
