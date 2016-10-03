@@ -1,5 +1,14 @@
 'use strict';
 
+// vex code
+const vex = require('vex-js');
+vex.registerPlugin(require('vex-dialog'));
+vex.defaultOptions.className = 'vex-theme-top';
+const prompt = (message, callback) => vex.dialog.prompt({
+	message,
+	callback
+});
+
 const {
 	section, h1, h2, i, select, option, ul, li,
 	table, tbody, thead, tr, td, th, pre, button, div
@@ -23,7 +32,7 @@ module.exports = ({state, actions}) => section('#ui', [
 			))),
 			button('#create-db', {
 				on: {
-					click: el => actions.createDb(prompt('Enter Database Name'))
+					click: el => prompt('Enter Database Name', actions.createDb)
 				}
 			}, 'Create new Database')
 		]),
@@ -44,7 +53,8 @@ module.exports = ({state, actions}) => section('#ui', [
 				button('#create-collection', {
 					on: {
 						click: el =>
-							actions.createCollection(state.selection.db, prompt('Enter Collection Name'))
+							prompt('Enter Collection Name', collectionName =>
+								actions.createCollection(state.selection.db, collectionName))
 					}
 				}, 'Create new Collection')
 			]) : ''

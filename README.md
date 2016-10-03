@@ -1,18 +1,18 @@
 # mongoAdmin - a Node.js MongoDB Client
 
 ## Setup
-- you will need node and mongo set up on your machine
-- clone the repo and inside run:
+- You need Node.js and MongoDB installed on your machine
+- Clone the repo and inside run:
 ```sh
 npm i
 ```
-- after the dependencies are installed start the client via:
+- Also do this in the electron folder
+```sh
+cd electron && npm i && cd ..
+```
+- After the dependencies are installed start the client via:
 ```sh
 npm start
 ```
-- after all the build tasks are completed open up <http://localhost:8080>
-and you should have access to your local mongodb instance
-- after the build tasks you can now also try the electron prototype via:
-```sh
-npm run start:electron
-```
+- After all the build tasks are completed you should have an instance of the electron app running.
+- You can also open up <http://localhost:8080> -> Tested in Firefox and Chrome

@@ -21,8 +21,8 @@ ipc.on('list collections', (ev, params) => {
 	);
 });
 
-ipc.on('create collections', (ev, params) => {
-	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
+ipc.on('create collections', (ev, params, data) => {
+	const collection = db.use(params.split('/')[1]).connection.collection(data.collection);
 	collection.save({test: true})
 		.then(() => collection.remove({}))
 		.then(() => ev.sender.send('collections create', {success: true}));

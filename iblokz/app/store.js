@@ -20,9 +20,9 @@ const init = ({type, agent, url}) => fn.switch(type, {
 	ipc: ({resource, path}) => ({
 		list: () => ipcHook(agent, 'list', resource, path),
 		create: doc => ipcHook(agent, 'create', resource, path, doc),
-		read: id => ipcHook(agent, 'read', `${path}/${id}`),
-		update: (id, doc) => ipcHook(agent, 'update', `${path}/${id}`, doc),
-		delete: id => ipcHook(agent, 'delete', `${path}/${id}`)
+		read: id => ipcHook(agent, 'read', resource, `${path}/${id}`),
+		update: (id, doc) => ipcHook(agent, 'update', resource, `${path}/${id}`, doc),
+		delete: id => ipcHook(agent, 'delete', resource, `${path}/${id}`)
 	})
 });
 
