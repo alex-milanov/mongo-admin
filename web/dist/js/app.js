@@ -49031,7 +49031,7 @@ module.exports = function (store) {
 	};
 
 	var createDb = function createDb(db) {
-		return stream.onNext(function (state) {
+		return db && db !== '' && stream.onNext(function (state) {
 			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
 		});
 	};
@@ -49051,7 +49051,7 @@ module.exports = function (store) {
 	};
 
 	var createCollection = function createCollection(db, collection) {
-		return store({ path: 'dbs/' + db, resource: 'collections' }).create({ collection: collection }).subscribe(function () {
+		return collection && collection !== '' && store({ path: 'dbs/' + db, resource: 'collections' }).create({ collection: collection }).subscribe(function () {
 			return stream.onNext(function (state) {
 				return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), {
 					documents: [],

@@ -50,7 +50,7 @@ module.exports = function(store) {
 		getCollections(db);
 	};
 
-	const createDb = db => stream.onNext(
+	const createDb = db => (db && db !== '') && stream.onNext(
 		state => Object.assign({},
 			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
 			{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null}
@@ -68,7 +68,7 @@ module.exports = function(store) {
 		state => obj.patch(state, 'selection', {collection, toggledRow: -1, doc: null, error: null})
 	);
 
-	const createCollection = (db, collection) =>
+	const createCollection = (db, collection) => (collection && collection !== '') &&
 		store({path: `dbs/${db}`, resource: 'collections'})
 			.create({collection})
 			.subscribe(() => stream.onNext(

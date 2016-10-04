@@ -2916,6 +2916,8 @@ button {
 
 .vex.vex-theme-top .vex-content {
   font-size: 12px; }
+  .vex.vex-theme-top .vex-content .vex-dialog-button {
+    text-transform: inherit; }
 
 #ui #left-pane {
   position: absolute;
@@ -3025,7 +3027,8 @@ button {
         border-top: 1px solid #ddd; }
       #ui #left-pane #collections li.active {
         color: #333;
-        box-shadow: inset 0px 0px 5px #e5e5e5; }
+        text-shadow: 0px 0px 3px #ccc;
+        box-shadow: inset 0px 0px 7px #e0e0e0; }
       #ui #left-pane #collections li:hover {
         color: #333;
         background: #f5faf3; }
