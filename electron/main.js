@@ -15,6 +15,12 @@ ipc.on('list dbs', ev => {
 	);
 });
 
+ipc.on('delete dbs', (ev, params) => {
+	db.use(params.split('/')[1]).connection.dropDatabase().then(
+		() => ev.sender.send('dbs delete', {success: true})
+	);
+});
+
 ipc.on('list collections', (ev, params) => {
 	db.use(params.split('/')[1]).listCollections().subscribe(
 		list => ev.sender.send('collections list', list)
@@ -26,6 +32,11 @@ ipc.on('create collections', (ev, params, data) => {
 	collection.save({test: true})
 		.then(() => collection.remove({}))
 		.then(() => ev.sender.send('collections create', {success: true}));
+});
+
+ipc.on('delete collections', (ev, params, data) => {
+	db.use(params.split('/')[1]).connection.dropCollection(params.split('/')[2])
+		.then(() => ev.sender.send('collections delete', {success: true}));
 });
 
 ipc.on('list documents', (ev, params) => {
@@ -50,6 +61,12 @@ ipc.on('update documents', (ev, params, doc) => {
 	);
 	collection.update({_id: new mongo.ObjectId(doc._id)}, newDoc)
 		.then(() => ev.sender.send('documents update', {success: true}));
+});
+
+ipc.on('delete documents', (ev, params, doc) => {
+	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
+	collection.remove({_id: new mongo.ObjectId(params.split('/')[3])})
+		.then(() => ev.sender.send('documents delete', {success: true}));
 });
 
 // Keep a global reference of the window object, if you don't, the window will

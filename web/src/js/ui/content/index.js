@@ -3,6 +3,13 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
+// vex code
+const vex = require('vex-js');
+const confirm = (message, onYes, onNo = () => false) => vex.dialog.confirm({
+	message,
+	callback: v => v ? onYes() : onNo()
+});
+
 const {
 	section, h1, h2, i, select, option, ul, li, div, p,
 	table, tbody, thead, tr, td, th, pre,
@@ -23,8 +30,8 @@ module.exports = ({state, actions}) => section('#content', [
 					$.start(() =>
 						Object.assign({}, state.selection, {doc: JSON.parse(ev.target.elements['doc'].value)}))
 						.subscribe(
-							s => actions.save(s.db, s.collection, s.doc),
-							err => actions.errorOnSave(err)
+							s => actions.documents.save(s.db, s.collection, s.doc),
+							err => actions.documents.saveError(err)
 						);
 					ev.preventDefault();
 				}
@@ -35,7 +42,7 @@ module.exports = ({state, actions}) => section('#content', [
 			(state.error) ? div('.error', state.error.message) : '',
 			button('.green.big', {attrs: {type: 'submit'}}, 'Save'),
 			button('.big', {on: {click: ev => {
-				actions.cancel();
+				actions.documents.cancel();
 				ev.preventDefault();
 			}}}, 'Cancel'),
 			textarea({attrs: {name: 'doc'}}, JSON.stringify(state.doc, null, 2))
@@ -44,7 +51,7 @@ module.exports = ({state, actions}) => section('#content', [
 		section('#collection', [
 			(state.doc === null) ?
 				button('.big', {
-					on: {click: el => actions.create()}
+					on: {click: el => actions.documents.create()}
 				}, 'Create new Document') : '',
 			(state.documents.length > 0) ?
 				table('#results', [
@@ -58,16 +65,27 @@ module.exports = ({state, actions}) => section('#content', [
 					tbody(state.documents.map((doc, index) =>
 						tr({
 							class: {
-								toggled: (index === state.selection.toggledRow)
+								toggled: (index === state.selection.toggledDoc)
 							}
 						}, [
 							td([
 								button('.fa.fa-pencil.blue', {
-									on: {click: el => actions.edit(doc)}
+									on: {click: el => actions.documents.edit(doc)}
 								}),
-								button('.fa.fa-trash.red'),
+								button('.fa.fa-trash.red', {
+									on: {
+										click: el =>
+											confirm(`Confirm deletion of ${doc._id}`,
+												() => actions.documents.delete(
+													state.selection.db,
+													state.selection.collection,
+													doc._id
+												)
+											)
+									}
+								}),
 								button('.fa.fa-expand.green', {
-									on: {click: el => actions.toggleRow(index)}
+									on: {click: el => actions.documents.toggle(index)}
 								})
 							])
 						].concat(Object.keys(doc).map(field =>

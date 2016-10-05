@@ -48988,34 +48988,7 @@ var obj = require('iblokz').common.obj;
 module.exports = function (store) {
 	var stream = new Rx.Subject();
 
-	var getDBs = function getDBs() {
-		return store({ path: 'dbs', resource: 'dbs' }).list().subscribe(function (dbs) {
-			return stream.onNext(function (state) {
-				return Object.assign({}, state, { dbs: dbs });
-			});
-		});
-	};
-
-	var init = function init() {
-		stream.onNext(function (state) {
-			return {
-				selection: {
-					server: 'localhost',
-					db: null,
-					collection: null,
-					toggledRow: -1
-				},
-				error: null,
-				doc: null,
-				dbs: [],
-				collections: [],
-				documents: []
-			};
-		});
-		getDBs();
-	};
-
-	var getCollections = function getCollections(db) {
+	var list = function list(db) {
 		return store({ path: 'dbs/' + db, resource: 'collections' }).list().subscribe(function (collections) {
 			return stream.onNext(function (state) {
 				return Object.assign({}, state, { collections: collections, doc: null, error: null });
@@ -49023,34 +48996,7 @@ module.exports = function (store) {
 		});
 	};
 
-	var setDb = function setDb(db) {
-		stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [], doc: null, error: null });
-		});
-		getCollections(db);
-	};
-
-	var createDb = function createDb(db) {
-		return db && db !== '' && stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
-		});
-	};
-
-	var getDocuments = function getDocuments(db, collection) {
-		return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).list().subscribe(function (documents) {
-			return stream.onNext(function (state) {
-				return Object.assign({}, state, { documents: documents, doc: null, error: null });
-			});
-		});
-	};
-
-	var setCollection = function setCollection(collection) {
-		return stream.onNext(function (state) {
-			return obj.patch(state, 'selection', { collection: collection, toggledRow: -1, doc: null, error: null });
-		});
-	};
-
-	var createCollection = function createCollection(db, collection) {
+	var create = function create(db, collection) {
 		return collection && collection !== '' && store({ path: 'dbs/' + db, resource: 'collections' }).create({ collection: collection }).subscribe(function () {
 			return stream.onNext(function (state) {
 				return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledRow: -1 }), {
@@ -49061,10 +49007,84 @@ module.exports = function (store) {
 		});
 	};
 
-	var toggleRow = function toggleRow(index) {
+	var select = function select(collection) {
+		return stream.onNext(function (state) {
+			return obj.patch(state, 'selection', { collection: collection, toggledRow: -1, doc: null, error: null });
+		});
+	};
+
+	return {
+		stream: stream,
+		list: list,
+		create: create,
+		select: select
+	};
+};
+
+},{"iblokz":42,"rx":115}],136:[function(require,module,exports){
+'use strict';
+
+var Rx = require('rx');
+var $ = Rx.Observable;
+
+var request = require('iblokz').adapters.request;
+var obj = require('iblokz').common.obj;
+
+module.exports = function (store) {
+	var stream = new Rx.Subject();
+
+	var list = function list() {
+		return store({ path: 'dbs', resource: 'dbs' }).list().subscribe(function (dbs) {
+			return stream.onNext(function (state) {
+				return Object.assign({}, state, { dbs: dbs });
+			});
+		});
+	};
+
+	var select = function select(db) {
+		stream.onNext(function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { documents: [], doc: null, error: null });
+		});
+	};
+
+	var create = function create(db) {
+		return db && db !== '' && stream.onNext(function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1 }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
+		});
+	};
+
+	return {
+		stream: stream,
+		list: list,
+		create: create,
+		select: select
+	};
+};
+
+},{"iblokz":42,"rx":115}],137:[function(require,module,exports){
+'use strict';
+
+var Rx = require('rx');
+var $ = Rx.Observable;
+
+var request = require('iblokz').adapters.request;
+var obj = require('iblokz').common.obj;
+
+module.exports = function (store) {
+	var stream = new Rx.Subject();
+
+	var list = function list(db, collection) {
+		return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).list().subscribe(function (documents) {
+			return stream.onNext(function (state) {
+				return Object.assign({}, state, { documents: documents, doc: null, error: null });
+			});
+		});
+	};
+
+	var toggle = function toggle(index) {
 		return stream.onNext(function (state) {
 			return obj.patch(state, 'selection', {
-				toggledRow: state.selection.toggledRow === index ? -1 : index
+				toggledDoc: state.selection.toggledDoc === index ? -1 : index
 			});
 		});
 	};
@@ -49088,14 +49108,14 @@ module.exports = function (store) {
 			stream.onNext(function (state) {
 				return Object.assign({}, state, { doc: null, error: null });
 			});
-			getDocuments(db, collection);
+			list(db, collection);
 		})
 		// create
 		: store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).create(doc).subscribe(function () {
 			stream.onNext(function (state) {
 				return Object.assign({}, state, { doc: null, error: null });
 			});
-			getDocuments(db, collection);
+			list(db, collection);
 		});
 	};
 
@@ -49105,32 +49125,81 @@ module.exports = function (store) {
 		});
 	};
 
-	var errorOnSave = function errorOnSave(error) {
+	var saveError = function saveError(error) {
 		return stream.onNext(function (state) {
 			return Object.assign({}, state, { error: error });
 		});
 	};
 
+	var _delete = function _delete(db, collection, id) {
+		return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).delete(id).subscribe(function () {
+			stream.onNext(function (state) {
+				return Object.assign({}, state, { doc: null, error: null });
+			});
+			list(db, collection);
+		});
+	};
+
 	return {
 		stream: stream,
-		init: init,
-		getDBs: getDBs,
-		getCollections: getCollections,
-		setDb: setDb,
-		createDb: createDb,
-		getDocuments: getDocuments,
-		setCollection: setCollection,
-		createCollection: createCollection,
-		toggleRow: toggleRow,
+		list: list,
+		toggle: toggle,
 		create: create,
 		edit: edit,
 		save: save,
-		errorOnSave: errorOnSave,
-		cancel: cancel
+		saveError: saveError,
+		cancel: cancel,
+		delete: _delete
 	};
 };
 
-},{"iblokz":42,"rx":115}],136:[function(require,module,exports){
+},{"iblokz":42,"rx":115}],138:[function(require,module,exports){
+'use strict';
+
+var Rx = require('rx');
+var $ = Rx.Observable;
+
+var request = require('iblokz').adapters.request;
+var obj = require('iblokz').common.obj;
+
+module.exports = function (store) {
+	var stream = new Rx.Subject();
+
+	var dbs = require('./dbs')(store);
+	var collections = require('./collections')(store);
+	var documents = require('./documents')(store);
+
+	console.log(dbs, collections, documents);
+
+	var init = function init() {
+		stream.onNext(function (state) {
+			return {
+				selection: {
+					server: 'localhost',
+					db: null,
+					collection: null,
+					toggledRow: -1
+				},
+				error: null,
+				doc: null,
+				dbs: [],
+				collections: [],
+				documents: []
+			};
+		});
+		dbs.list();
+	};
+
+	return {
+		init: init,
+		dbs: dbs,
+		collections: collections,
+		documents: documents,
+		stream: $.merge(stream, dbs.stream, collections.stream, documents.stream)
+	};
+};
+
+},{"./collections":135,"./dbs":136,"./documents":137,"iblokz":42,"rx":115}],139:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -49154,6 +49223,20 @@ var state$ = actions.stream.scan(function (state, change) {
 	return state;
 });
 
+// hooks
+// on db change list collections
+state$.distinctUntilChanged(function (state) {
+	return state.selection && state.selection.db;
+}).subscribe(function (state) {
+	return actions.collections.list(state.selection.db);
+});
+// on collection change list documents
+state$.distinctUntilChanged(function (state) {
+	return state.selection && state.selection.collection;
+}).subscribe(function (state) {
+	return actions.documents.list(state.selection.db, state.selection.collection);
+});
+
 var ui$ = state$.map(function (state) {
 	return ui({ state: state, actions: actions });
 });
@@ -49163,13 +49246,27 @@ vdom.patchStream(ui$, '#ui');
 
 window.actions = actions;
 
-},{"./actions":135,"./ui":138,"iblokz":42,"rx":115}],137:[function(require,module,exports){
+},{"./actions":138,"./ui":141,"iblokz":42,"rx":115}],140:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 var Rx = require('rx');
 var $ = Rx.Observable;
+
+// vex code
+var vex = require('vex-js');
+var confirm = function confirm(message, onYes) {
+	var onNo = arguments.length <= 2 || arguments[2] === undefined ? function () {
+		return false;
+	} : arguments[2];
+	return vex.dialog.confirm({
+		message: message,
+		callback: function callback(v) {
+			return v ? onYes() : onNo();
+		}
+	});
+};
 
 var _require$adapters$vdo = require('iblokz').adapters.vdom;
 
@@ -49205,19 +49302,19 @@ module.exports = function (_ref) {
 				$.start(function () {
 					return Object.assign({}, state.selection, { doc: JSON.parse(ev.target.elements['doc'].value) });
 				}).subscribe(function (s) {
-					return actions.save(s.db, s.collection, s.doc);
+					return actions.documents.save(s.db, s.collection, s.doc);
 				}, function (err) {
-					return actions.errorOnSave(err);
+					return actions.documents.saveError(err);
 				});
 				ev.preventDefault();
 			}
 		}
 	}, [h2(_typeof(state.doc) === 'object' && typeof state.doc._id !== 'undefined' ? 'Edit Document: ' + state.doc._id : 'Create new Document'), state.error ? div('.error', state.error.message) : '', button('.green.big', { attrs: { type: 'submit' } }, 'Save'), button('.big', { on: { click: function click(ev) {
-				actions.cancel();
+				actions.documents.cancel();
 				ev.preventDefault();
 			} } }, 'Cancel'), textarea({ attrs: { name: 'doc' } }, JSON.stringify(state.doc, null, 2))]) : '', state.selection.collection ? section('#collection', [state.doc === null ? button('.big', {
 		on: { click: function click(el) {
-				return actions.create();
+				return actions.documents.create();
 			} }
 	}, 'Create new Document') : '', state.documents.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
 		return Object.assign(m, o);
@@ -49226,15 +49323,23 @@ module.exports = function (_ref) {
 	})))]), tbody(state.documents.map(function (doc, index) {
 		return tr({
 			class: {
-				toggled: index === state.selection.toggledRow
+				toggled: index === state.selection.toggledDoc
 			}
 		}, [td([button('.fa.fa-pencil.blue', {
 			on: { click: function click(el) {
-					return actions.edit(doc);
+					return actions.documents.edit(doc);
 				} }
-		}), button('.fa.fa-trash.red'), button('.fa.fa-expand.green', {
+		}), button('.fa.fa-trash.red', {
+			on: {
+				click: function click(el) {
+					return confirm('Confirm deletion of ' + doc._id, function () {
+						return actions.documents.delete(state.selection.db, state.selection.collection, doc._id);
+					});
+				}
+			}
+		}), button('.fa.fa-expand.green', {
 			on: { click: function click(el) {
-					return actions.toggleRow(index);
+					return actions.documents.toggle(index);
 				} }
 		})])].concat(Object.keys(doc).map(function (field) {
 			return td(typeof doc[field] === 'string' ? [div(doc[field])] : [pre(JSON.stringify(doc[field], null, 2))]);
@@ -49242,7 +49347,7 @@ module.exports = function (_ref) {
 	}))]) : '']) : '']);
 };
 
-},{"iblokz":42,"rx":115}],138:[function(require,module,exports){
+},{"iblokz":42,"rx":115,"vex-js":134}],141:[function(require,module,exports){
 'use strict';
 
 // vex code
@@ -49285,14 +49390,14 @@ module.exports = function (_ref) {
 	var actions = _ref.actions;
 	return section('#ui', [section('#left-pane', [h1([i('.fa.fa-database'), ' mongoAdmin ']), section('#db-select', {
 		on: { change: function change(el) {
-				return actions.setDb(el.target.value);
+				return actions.dbs.select(el.target.value);
 			} }
 	}, [select([option({ attrs: { value: '' } }, 'Select Database')].concat(state.dbs.map(function (db) {
 		return option({ attrs: { value: db, selected: db === state.selection.db } }, db);
 	}))), button('#create-db', {
 		on: {
 			click: function click(el) {
-				return prompt('Enter Database Name', actions.createDb);
+				return prompt('Enter Database Name', actions.dbs.create);
 			}
 		}
 	}, 'Create new Database')]),
@@ -49300,8 +49405,8 @@ module.exports = function (_ref) {
 	state.selection.db ? section([h2([i('.fa.fa-list'), ' Collections']), ul('#collections', state.collections.map(function (collection) {
 		return li({
 			on: { click: function click(el) {
-					actions.setCollection(collection);
-					actions.getDocuments(state.selection.db, collection);
+					actions.collections.select(collection);
+					// actions.getDocuments(state.selection.db, collection);
 				} },
 			class: {
 				active: collection === state.selection.collection
@@ -49311,11 +49416,11 @@ module.exports = function (_ref) {
 		on: {
 			click: function click(el) {
 				return prompt('Enter Collection Name', function (collectionName) {
-					return actions.createCollection(state.selection.db, collectionName);
+					return actions.collections.create(state.selection.db, collectionName);
 				});
 			}
 		}
 	}, 'Create new Collection')]) : '']), content({ state: state, actions: actions })]);
 };
 
-},{"./content":137,"iblokz":42,"vex-dialog":133,"vex-js":134}]},{},[136]);
+},{"./content":140,"iblokz":42,"vex-dialog":133,"vex-js":134}]},{},[139]);

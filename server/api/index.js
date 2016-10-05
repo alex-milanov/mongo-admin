@@ -25,6 +25,12 @@ module.exports = (app, db) => {
 					() => res.jsonp({success: true}),
 					err => res.jsonp(err)
 				);
+		})
+		.delete((req, res) => {
+			db.use(req.params.db).connection.dropDatabase().then(
+				() => res.jsonp({success: true}),
+				err => res.jsonp(err)
+			);
 		});
 
 	app.route('/api/dbs/:db/:collection')
@@ -43,7 +49,14 @@ module.exports = (app, db) => {
 					() => res.jsonp({success: true}),
 					err => res.jsonp(err)
 				);
+		})
+		.delete((req, res) => {
+			db.use(req.params.db).connection.dropCollection(req.params.collection).then(
+				() => res.jsonp({success: true}),
+				err => res.jsonp(err)
+			);
 		});
+
 	app.route('/api/dbs/:db/:collection/:documentId')
 		.put((req, res) => {
 			const collection = db.use(req.params.db).connection.collection(req.params.collection);
@@ -52,11 +65,18 @@ module.exports = (app, db) => {
 				: o,
 				{}
 			);
-			console.log(newDoc);
 			collection.update(
 				{_id: new mongo.ObjectId(req.body._id)},
 				newDoc
 			)
+				.then(
+					() => res.jsonp({success: true}),
+					err => res.jsonp(err)
+				);
+		})
+		.delete((req, res) => {
+			const collection = db.use(req.params.db).connection.collection(req.params.collection);
+			collection.remove({_id: new mongo.ObjectId(req.params.documentId)})
 				.then(
 					() => res.jsonp({success: true}),
 					err => res.jsonp(err)

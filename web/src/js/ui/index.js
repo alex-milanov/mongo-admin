@@ -23,7 +23,7 @@ module.exports = ({state, actions}) => section('#ui', [
 			' mongoAdmin '
 		]),
 		section('#db-select', {
-			on: {change: el => actions.setDb(el.target.value)}
+			on: {change: el => actions.dbs.select(el.target.value)}
 		}, [
 			select([
 				option({attrs: {value: ''}}, 'Select Database')
@@ -32,7 +32,7 @@ module.exports = ({state, actions}) => section('#ui', [
 			))),
 			button('#create-db', {
 				on: {
-					click: el => prompt('Enter Database Name', actions.createDb)
+					click: el => prompt('Enter Database Name', actions.dbs.create)
 				}
 			}, 'Create new Database')
 		]),
@@ -43,8 +43,8 @@ module.exports = ({state, actions}) => section('#ui', [
 				ul('#collections', state.collections.map(collection =>
 					li({
 						on: {click: el => {
-							actions.setCollection(collection);
-							actions.getDocuments(state.selection.db, collection);
+							actions.collections.select(collection);
+							// actions.getDocuments(state.selection.db, collection);
 						}},
 						class: {
 							active: (collection === state.selection.collection)
@@ -54,7 +54,7 @@ module.exports = ({state, actions}) => section('#ui', [
 					on: {
 						click: el =>
 							prompt('Enter Collection Name', collectionName =>
-								actions.createCollection(state.selection.db, collectionName))
+								actions.collections.create(state.selection.db, collectionName))
 					}
 				}, 'Create new Collection')
 			]) : ''
