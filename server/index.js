@@ -18,11 +18,11 @@ app.use(bodyParser.json());
 app.use(methodOverride());
 app.use(express.static(path.resolve(__dirname, '../web/dist')));
 
-const mongo = require('iblokz').adapters.mongo;
-const db = mongo.connect('mongodb://localhost');
+const mongoClient = require('mongodb').MongoClient;
+mongoClient.connect('mongodb://localhost:27017').then(db => {
+	require('./api')(app, db);
 
-require('./api')(app, db);
+	app.listen(8080);
 
-app.listen(8080);
-
-console.log('Express app started on port ' + 8080);
+	console.log('Express app started on port ' + 8080);
+});

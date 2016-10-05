@@ -12,16 +12,19 @@ module.exports = function(store) {
 	const list = db => store({path: `dbs/${db}`, resource: 'collections'})
 		.list()
 		.subscribe(collections => stream.onNext(
-			state => Object.assign({}, state, {collections, doc: null, error: null})
+			state => Object.assign({},
+				obj.patch(state, 'selection', {collection: null, toggledDoc: -1}),
+				{collections, doc: null, error: null}
+			)
 		));
 
-	const create = (db, collection) => (collection && collection !== '') &&
+	const create = (db, collection) =>
 		store({path: `dbs/${db}`, resource: 'collections'})
 			.create({collection})
 			.subscribe(() => stream.onNext(
 				state => Object.assign(
 					{},
-					obj.patch(state, 'selection', {collection, toggledRow: -1}),
+					obj.patch(state, 'selection', {collection, toggledDoc: -1}),
 					{
 						documents: [],
 						collections: state.collections.concat([collection]), doc: null, error: null
@@ -30,13 +33,18 @@ module.exports = function(store) {
 			));
 
 	const select = collection => stream.onNext(
-		state => obj.patch(state, 'selection', {collection, toggledRow: -1, doc: null, error: null})
+		state => obj.patch(state, 'selection', {collection, toggledDoc: -1, doc: null, error: null})
 	);
+
+	const _delete = (db, collection) => store({path: `dbs/${db}`, resource: 'collections'})
+		.delete(collection)
+		.subscribe(() => list());
 
 	return {
 		stream,
 		list,
 		create,
-		select
+		select,
+		delete: _delete
 	};
 };

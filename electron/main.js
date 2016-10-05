@@ -5,68 +5,70 @@ const app = electron.app;
 const BrowserWindow = electron.BrowserWindow;
 
 const ipc = require('electron').ipcMain;
-const mongo = require('iblokz').adapters.mongo;
 
-const db = mongo.connect('mongodb://localhost');
+const mongoClient = require('mongodb').MongoClient;
+const ObjectID = require('mongodb').ObjectID;
 
-ipc.on('list dbs', ev => {
-	db.listDatabases().subscribe(
-		list => ev.sender.send('dbs list', list)
-	);
-});
-
-ipc.on('delete dbs', (ev, params) => {
-	db.use(params.split('/')[1]).connection.dropDatabase().then(
-		() => ev.sender.send('dbs delete', {success: true})
-	);
-});
-
-ipc.on('list collections', (ev, params) => {
-	db.use(params.split('/')[1]).listCollections().subscribe(
-		list => ev.sender.send('collections list', list)
-	);
-});
-
-ipc.on('create collections', (ev, params, data) => {
-	const collection = db.use(params.split('/')[1]).connection.collection(data.collection);
-	collection.save({test: true})
-		.then(() => collection.remove({}))
-		.then(() => ev.sender.send('collections create', {success: true}));
-});
-
-ipc.on('delete collections', (ev, params, data) => {
-	db.use(params.split('/')[1]).connection.dropCollection(params.split('/')[2])
-		.then(() => ev.sender.send('collections delete', {success: true}));
-});
-
-ipc.on('list documents', (ev, params) => {
-	db.use(params.split('/')[1]).connection
-		.collection(params.split('/')[2]).find().toArray().then(
-			list => ev.sender.send('documents list', list.map(d => JSON.parse(JSON.stringify(d))))
+mongoClient.connect('mongodb://localhost:27017').then(db => {
+	ipc.on('list dbs', ev => {
+		db.admin().listDatabases().then(
+			list => ev.sender.send('dbs list', list.databases.map(d => d.name))
 		);
-});
+	});
 
-ipc.on('create documents', (ev, params, doc) => {
-	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
-	collection.save(doc)
-		.then(() => ev.sender.send('documents create', {success: true}));
-});
+	ipc.on('delete dbs', (ev, params) => {
+		db.db(params.split('/')[1]).dropDatabase().then(
+			() => ev.sender.send('dbs delete', {success: true})
+		);
+	});
 
-ipc.on('update documents', (ev, params, doc) => {
-	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
-	const newDoc = Object.keys(doc).reduce((o, key) => (key !== '_id')
-		? ((o[key] = doc[key]), o)
-		: o,
-		{}
-	);
-	collection.update({_id: new mongo.ObjectId(doc._id)}, newDoc)
-		.then(() => ev.sender.send('documents update', {success: true}));
-});
+	ipc.on('list collections', (ev, params) => {
+		db.db(params.split('/')[1]).listCollections().toArray().then(
+			list => ev.sender.send('collections list', list.map(c => c.name))
+		);
+	});
 
-ipc.on('delete documents', (ev, params, doc) => {
-	const collection = db.use(params.split('/')[1]).connection.collection(params.split('/')[2]);
-	collection.remove({_id: new mongo.ObjectId(params.split('/')[3])})
-		.then(() => ev.sender.send('documents delete', {success: true}));
+	ipc.on('create collections', (ev, params, data) => {
+		const collection = db.db(params.split('/')[1]).collection(data.collection);
+		collection.save({test: true})
+			.then(() => collection.remove({}))
+			.then(() => ev.sender.send('collections create', {success: true}));
+	});
+
+	ipc.on('delete collections', (ev, params, data) => {
+		db.db(params.split('/')[1]).dropCollection(params.split('/')[2])
+			.then(() => ev.sender.send('collections delete', {success: true}));
+	});
+
+	ipc.on('list documents', (ev, params) => {
+		db.db(params.split('/')[1])
+			.collection(params.split('/')[2]).find().toArray().then(
+				list => ev.sender.send('documents list', list.map(d => JSON.parse(JSON.stringify(d))))
+			);
+	});
+
+	ipc.on('create documents', (ev, params, doc) => {
+		const collection = db.db(params.split('/')[1]).collection(params.split('/')[2]);
+		collection.save(doc)
+			.then(() => ev.sender.send('documents create', {success: true}));
+	});
+
+	ipc.on('update documents', (ev, params, doc) => {
+		const collection = db.db(params.split('/')[1]).collection(params.split('/')[2]);
+		const newDoc = Object.keys(doc).reduce((o, key) => (key !== '_id')
+			? ((o[key] = doc[key]), o)
+			: o,
+			{}
+		);
+		collection.update({_id: new ObjectID(doc._id)}, newDoc)
+			.then(() => ev.sender.send('documents update', {success: true}));
+	});
+
+	ipc.on('delete documents', (ev, params, doc) => {
+		const collection = db.db(params.split('/')[1]).collection(params.split('/')[2]);
+		collection.remove({_id: new ObjectID(params.split('/')[3])})
+			.then(() => ev.sender.send('documents delete', {success: true}));
+	});
 });
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -76,9 +78,6 @@ let mainWindow;
 function createWindow() {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({width: 800, height: 600});
-
-	mainWindow.mongo = mongo;
-
 	// and load the index.html of the app.
 	mainWindow.loadURL(`file://${__dirname}/app/index.html`);
 

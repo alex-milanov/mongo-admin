@@ -12,7 +12,12 @@ module.exports = function(store) {
 	const list = () => store({path: 'dbs', resource: 'dbs'})
 		.list()
 		.subscribe(dbs => stream.onNext(
-			state => Object.assign({}, state, {dbs})
+			state => Object.assign({}, state, {dbs, selection: {
+				server: 'localhost',
+				db: null,
+				collection: null,
+				toggledRow: -1
+			}})
 		));
 
 	const select = db => {
@@ -24,17 +29,22 @@ module.exports = function(store) {
 		);
 	};
 
-	const create = db => (db && db !== '') && stream.onNext(
+	const create = db => stream.onNext(
 		state => Object.assign({},
 			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
 			{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null}
 		)
 	);
 
+	const _delete = db => store({path: 'dbs', resource: 'dbs'})
+		.delete(db)
+		.subscribe(() => list());
+
 	return {
 		stream,
 		list,
 		create,
-		select
+		select,
+		delete: _delete
 	};
 };

@@ -32,7 +32,7 @@
     "iblokz": "./iblokz",
     "method-override": "^2.3.6",
     "mongo-admin-electron": "file:electron",
-    "mongoose": "^4.5.7",
+    "mongoose": "^4.6.2",
     "rx": "^4.1.0",
     "snabbdom": "^0.5.3",
     "superagent": "^2.1.0",
