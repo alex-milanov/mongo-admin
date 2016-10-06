@@ -5,14 +5,26 @@
   "description": "Mongo Admin Client",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pack": "build --dir",
+    "dist": "build"
+  },
+  "build": {
+    "appId": "mongo.admin",
+    "category": "utils.database.clients"
   },
   "dependencies": {
     "iblokz": "../iblokz",
     "mongoose": "^4.5.7",
     "rx": "^4.1.0",
-    "superagent": "^2.1.0"
+    "snabbdom": "^0.5.3",
+    "superagent": "^2.1.0",
+    "vex-js": "^3.0.0"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^1.4.3",
+    "electron-builder": "^7.11.2",
+    "unoconv": "^0.1.2"
+  }
 }
