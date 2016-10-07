@@ -17,10 +17,6 @@ const {
 } = require('iblokz').adapters.vdom;
 
 module.exports = ({state, actions}) => section('#left-pane', [
-	h1([
-		i('.fa.fa-database'),
-		' mongoAdmin '
-	]),
 	section('#dbs', [
 		select({
 			on: {change: el => actions.dbs.select(el.target.value)}
@@ -46,7 +42,7 @@ module.exports = ({state, actions}) => section('#left-pane', [
 	// show collections if db is selected
 	(state.selection.db) ?
 		section([
-			h2([i('.fa.fa-list'), ' Collections']),
+			// h2([i('.fa.fa-list'), ' Collections']),
 			ul('#collections', state.collections.map(collection =>
 				li({
 					on: {click: el => {
@@ -57,7 +53,7 @@ module.exports = ({state, actions}) => section('#left-pane', [
 						active: (collection === state.selection.collection)
 					}
 				}, collection))),
-			button('#create-collection', {
+			button({
 				on: {
 					click: el =>
 						prompt('Enter Collection Name', collectionName =>

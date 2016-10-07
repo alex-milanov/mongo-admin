@@ -1,7 +1,16 @@
 
 
 body
-	font-family: $mongo-admin-font
+	font-family: $ma-font-body
+	background: lighten($ma-color-green-4, 70%)
+
+@mixin buttonize($bg-color)
+	color: white
+	background: lighten($bg-color, 10%)
+	border: 1px solid darken($bg-color, 10%)
+	&:hover
+		background: $bg-color
+		border: 1px solid darken($bg-color, 20%)
 
 button
 	+clear-form-control
@@ -13,27 +22,19 @@ button
 	cursor: pointer
 	line-height: 20px
 	height: 20px
-	opacity: 0.4
 	transition: opacity 0.1s
 	&.big
 		font-size: 14px
 		height: 24px
 		line-height: 24px
 	&.green
-		color: green
+		+buttonize($ma-color-green-1)
 	&.red
-		color: red
+		+buttonize($ma-color-red-1)
 	&.blue
-		color: blue
-	&.yellow
-		color: yellow
-	&:hover
-		opacity: 1
-		border: 1px solid #ddd
-		background: lighten(#f2f8f0, 1%)
+		+buttonize($ma-color-blue-1)
+	&.orange
+		+buttonize($ma-color-orange-1)
 	&:active
 		//background: #e5e5e5
-		border: 1px solid #ddd
-		box-shadow: inset 0px 0px 5px #ddd
-	&:focus
-		border: 1px solid #ddd
+		box-shadow: inset 0px 0px 15px #ddd

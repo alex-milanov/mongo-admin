@@ -50273,6 +50273,7 @@ var select = _require$adapters$vdo.select;
 var option = _require$adapters$vdo.option;
 var ul = _require$adapters$vdo.ul;
 var li = _require$adapters$vdo.li;
+var header = _require$adapters$vdo.header;
 var table = _require$adapters$vdo.table;
 var tbody = _require$adapters$vdo.tbody;
 var thead = _require$adapters$vdo.thead;
@@ -50290,7 +50291,7 @@ var leftPane = require('./left-pane');
 module.exports = function (_ref) {
 	var state = _ref.state;
 	var actions = _ref.actions;
-	return section('#ui', [leftPane({ state: state, actions: actions }), content({ state: state, actions: actions })]);
+	return section('#ui', [header([h1([i('.fa.fa-database'), ' mongoAdmin '])]), leftPane({ state: state, actions: actions }), content({ state: state, actions: actions })]);
 };
 
 },{"./content":175,"./left-pane":177,"iblokz":51,"vex-dialog":168,"vex-js":169}],177:[function(require,module,exports){
@@ -50345,7 +50346,7 @@ var button = _require$adapters$vdo.button;
 module.exports = function (_ref) {
 	var state = _ref.state;
 	var actions = _ref.actions;
-	return section('#left-pane', [h1([i('.fa.fa-database'), ' mongoAdmin ']), section('#dbs', [select({
+	return section('#left-pane', [section('#dbs', [select({
 		on: { change: function change(el) {
 				return actions.dbs.select(el.target.value);
 			} }
@@ -50369,7 +50370,9 @@ module.exports = function (_ref) {
 		}
 	}, 'Drop ' + state.selection.db) : '']),
 	// show collections if db is selected
-	state.selection.db ? section([h2([i('.fa.fa-list'), ' Collections']), ul('#collections', state.collections.map(function (collection) {
+	state.selection.db ? section([
+	// h2([i('.fa.fa-list'), ' Collections']),
+	ul('#collections', state.collections.map(function (collection) {
 		return li({
 			on: { click: function click(el) {
 					actions.collections.select(collection);
@@ -50379,7 +50382,7 @@ module.exports = function (_ref) {
 				active: collection === state.selection.collection
 			}
 		}, collection);
-	})), button('#create-collection', {
+	})), button({
 		on: {
 			click: function click(el) {
 				return prompt('Enter Collection Name', function (collectionName) {

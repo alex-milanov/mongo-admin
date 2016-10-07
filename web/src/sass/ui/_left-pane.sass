@@ -1,39 +1,27 @@
 #ui
 	#left-pane
-		position: absolute
-		top: 0px
-		bottom: 0px
-		left: 0px
-		width: 250px
-		background: #f2f8f0
-		box-shadow: 0px 0px 5px #eee
-		border-right: 1px solid #ddd
-		> *
-			width: 100%
-			margin: 0px
-			padding: 0px 10px
-		hr
-			+no-margin-padding
-		h1
-			i
-				margin-left: -10px
-				color: #a4e48a
-			font-size: 18px
-			text-align: center
-			padding: 0px
-			margin: 40px 0px
-			color: #836D58
+		+position(absolute, $ma-header-height null 0px 0px)
+		width: $ma-pane-width
+		padding: 20px 0px
+		// background: #f2f8f0
+			// color: #836D58
 		h2
 			font-size: 14px
 		> section
 			width: 100%
 			position: relative
-			padding: 0px 10px
+			padding: 0px 15px 0px 10px
 			line-height: 24px
 			button
 				width: 100%
 				margin: 0px
 				margin-top: 5px
+				text-align: left
+				background: none
+				border: 0px
+				color: #333
+				&:hover
+					background: lighten($ma-color-blue-4, 65%)
 		#dbs
 			margin: 10px 0px
 			&::after
@@ -44,7 +32,7 @@
 				height: 24px
 				position: absolute
 				top: 0px
-				right: 15px
+				right: 25px
 				color: #bbb
 				pointer-events: none
 			select
@@ -59,9 +47,8 @@
 				box-sizing: border-box
 				width: 100%
 				display: block
-				background: none
-				margin-bottom: 10px
-				padding: 0px
+				background: white
+				padding: 0px 5px
 				font-size: 14px
 				line-height: 24px
 				height: 24px
@@ -69,21 +56,16 @@
 				-webkit-appearance: none
 				-moz-appearance: none
 				appearance: none
-				border: 1px solid #ddd
-				box-shadow: 0px 0px 15px #eee
+				border: 1px solid #ccc
 				transition: box-shadow 0.5s
-				&:hover
-					box-shadow: 0px 0px 15px #ddd
-
 		#collections
 			margin: 5px 0px
 			padding: 0px
-			border: 1px solid #ddd
-			box-shadow: 0px 0px 15px #eee
+			border: 1px solid #ccc
 			list-style-type: none
 			li
 				&:not(:first-child)
-					border-top: 1px solid #ddd
+					border-top: 1px solid #ccc
 				padding: 0px 10px
 				cursor: pointer
 				font-size: 12px
@@ -94,8 +76,7 @@
 				&.active
 					//background: #e5e5e5
 					color: #333
-					text-shadow: 0px 0px 3px #ccc
-					box-shadow: inset 0px 0px 7px #e0e0e0
+					background: lighten($ma-color-blue-4, 70%)
 				&:hover
 					color: #333
-					background: lighten(#f2f8f0, 1%)
+					background: lighten($ma-color-blue-4, 67%)
