@@ -4,14 +4,6 @@
   "version": "1.0.0",
   "description": "Mongo Admin Client",
   "main": "main.js",
-  "scripts": {
-    "pack": "build --dir",
-    "dist": "build"
-  },
-  "build": {
-    "appId": "mongo.admin",
-    "category": "utils.database.clients"
-  },
   "dependencies": {
     "iblokz": "../iblokz",
     "mongoose": "^4.5.7",
@@ -21,10 +13,5 @@
     "vex-js": "^3.0.0"
   },
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "electron": "^1.4.3",
-    "electron-builder": "^7.11.2",
-    "unoconv": "^0.1.2"
-  }
+  "license": "ISC"
 }
