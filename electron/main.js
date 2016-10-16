@@ -1,15 +1,9 @@
-const electron = require('electron');
-// Module to control application life.
-const app = electron.app;
-// Module to create native browser window.
-const BrowserWindow = electron.BrowserWindow;
+const {app, Menu, BrowserWindow, ipcMain} = require('electron');
+const ipc = ipcMain;
 
-const ipc = require('electron').ipcMain;
+const {MongoClient, ObjectID} = require('mongodb');
 
-const mongoClient = require('mongodb').MongoClient;
-const ObjectID = require('mongodb').ObjectID;
-
-mongoClient.connect('mongodb://localhost:27017').then(db => {
+MongoClient.connect('mongodb://localhost:27017').then(db => {
 	ipc.on('list dbs', ev => {
 		db.admin().listDatabases().then(
 			list => ev.sender.send('dbs list', list.databases.map(d => d.name))
@@ -91,6 +85,27 @@ function createWindow() {
 		// when you should delete the corresponding element.
 		mainWindow = null;
 	});
+
+	const template = [{
+	    label: "Application",
+	    submenu: [
+	        { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
+	        { type: "separator" },
+	        { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+	    ]}, {
+	    label: "Edit",
+	    submenu: [
+	        { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+	        { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+	        { type: "separator" },
+	        { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+	        { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+	        { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+	        { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+	    ]}
+	];
+
+	Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
 // This method will be called when Electron has finished
