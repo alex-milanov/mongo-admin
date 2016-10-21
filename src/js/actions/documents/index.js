@@ -24,6 +24,10 @@ module.exports = function(store) {
 		})
 	);
 
+	const filter = filter => stream.onNext(
+		state => obj.patch(state, 'selection', {filter})
+	);
+
 	const create = () => stream.onNext(
 		state => Object.assign({}, state, {doc: {}, error: null})
 	);
@@ -74,6 +78,7 @@ module.exports = function(store) {
 		stream,
 		list,
 		toggle,
+		filter,
 		create,
 		edit,
 		save,

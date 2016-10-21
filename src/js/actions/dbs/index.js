@@ -13,7 +13,7 @@ module.exports = function(store) {
 		.list()
 		.subscribe(dbs => stream.onNext(
 			state => Object.assign({},
-				obj.patch(state, 'selection', {db: null, collection: null, toggledRow: -1}),
+				obj.patch(state, 'selection', {db: null, collection: null, toggledRow: -1, filter: ''}),
 				{dbs}
 			)
 		));
@@ -21,7 +21,7 @@ module.exports = function(store) {
 	const select = db => {
 		stream.onNext(
 			state => Object.assign({},
-				obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
+				obj.patch(state, 'selection', {db, collection: null, toggledRow: -1, filter: ''}),
 				{documents: [], doc: null, error: null}
 			)
 		);
@@ -29,7 +29,7 @@ module.exports = function(store) {
 
 	const create = db => stream.onNext(
 		state => Object.assign({},
-			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1}),
+			obj.patch(state, 'selection', {db, collection: null, toggledRow: -1, filter: ''}),
 			{collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null}
 		)
 	);

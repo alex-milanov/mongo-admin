@@ -23,7 +23,8 @@ module.exports = function(store) {
 					port: 27017,
 					db: null,
 					collection: null,
-					toggledRow: -1
+					toggledRow: -1,
+					filter: ''
 				},
 				error: null,
 				doc: null,

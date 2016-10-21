@@ -22,16 +22,17 @@
     "start": "npm run build && nodemon server & npm run watch & npm run start:electron",
     "start:electron": "electron ./electron",
     "pack-linux": "electron-packager ./electron --asar --asar-unpack=protocol-link.html --overwrite --platform=linux --arch=x64 --prune=true --out=electron/dist/web",
-		"pack": "npm run pack:linux && npm run pack:osx && npm run pack:win32 && npm run pack:win64",
-		"pack:linux": "electron-packager ./electron mongoAdmin --out=dist/linux --overwrite --platform=linux --arch=x64 --icon=assets/icon-48.png",
-		"pack:osx": "electron-packager ./electron mongoAdmin --out=dist/osx --overwrite --platform=darwin --arch=x64 --icon=assets/icon-48.icns",
-		"pack:win32": "electron-packager ./electron mongoAdmin --out=dist/win --overwrite --platform=win32 --arch=ia32 --icon=assets/icon-48.ico",
-		"pack:win64": "electron-packager ./electron mongoAdmin --out=dist/win --overwrite --platform=win32 --arch=x64 --icon=assets/icon-48.ico"
+    "pack": "npm run pack:linux && npm run pack:osx && npm run pack:win32 && npm run pack:win64",
+    "pack:linux": "electron-packager ./electron mongoAdmin --out=dist/linux --overwrite --platform=linux --arch=x64 --icon=assets/icon-48.png",
+    "pack:osx": "electron-packager ./electron mongoAdmin --out=dist/osx --overwrite --platform=darwin --arch=x64 --icon=assets/icon-48.icns",
+    "pack:win32": "electron-packager ./electron mongoAdmin --out=dist/win --overwrite --platform=win32 --arch=ia32 --icon=assets/icon-48.ico",
+    "pack:win64": "electron-packager ./electron mongoAdmin --out=dist/win --overwrite --platform=win32 --arch=x64 --icon=assets/icon-48.ico"
   },
   "dependencies": {
     "body-parser": "^1.15.2",
     "bourbon": "^4.2.7",
     "bourbon-neat": "^1.8.0",
+    "escape-string-regexp": "^1.0.5",
     "express": "^4.14.0",
     "font-awesome": "^4.6.3",
     "iblokz": "./iblokz",

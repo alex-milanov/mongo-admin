@@ -3006,7 +3006,7 @@ button {
       height: 24px;
       position: absolute;
       top: 0px;
-      right: 15px;
+      right: 20px;
       color: #bbb;
       pointer-events: none; }
     #ui #left-pane #dbs select {
@@ -3110,6 +3110,32 @@ button {
   #ui #content #document button {
     margin: 5px 5px 5px 0px;
     min-width: 100px; }
+  #ui #content #filter {
+    height: 28px;
+    line-height: 28px; }
+    #ui #content #filter input {
+      margin: 0px;
+      padding: 0px;
+      border: 0px;
+      outline: none;
+      border-radius: 0px;
+      border-image: none;
+      box-sizing: border-box;
+      background: inherit;
+      font-size: inherit;
+      font-family: inherit;
+      font-weight: inherit;
+      height: 28px;
+      line-height: 28px;
+      width: 100%;
+      border: 1px solid #ddd !important;
+      background: #fefefe;
+      padding: 0px 5px; }
+      #ui #content #filter input:focus, #ui #content #filter input:active, #ui #content #filter input::-moz-focus-inner, #ui #content #filter input:-moz-focusring, #ui #content #filter input::-moz-focus-outer {
+        border: none;
+        outline: none;
+        border-radius: 0px;
+        border-image: none; }
   #ui #content #collection {
     width: 100%; }
     #ui #content #collection > * {

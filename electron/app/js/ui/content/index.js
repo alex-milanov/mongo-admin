@@ -3,6 +3,8 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
+const escapeStringRegexp = require('escape-string-regexp');
+
 // vex code
 const vex = require('vex-js');
 const confirm = (message, onYes, onNo = () => false) => vex.dialog.confirm({
@@ -53,6 +55,12 @@ module.exports = ({state, actions}) => section('#content', [
 				button('.big', {
 					on: {click: el => actions.documents.create()}
 				}, 'Create new Document') : '',
+			form('#filter', [
+				input({
+					on: {input: el => actions.documents.filter(el.target.value)},
+					attrs: {placeholder: 'Filter'}
+				})
+			]),
 			(state.documents.length > 0) ?
 				table('#results', [
 					thead([
@@ -62,39 +70,42 @@ module.exports = ({state, actions}) => section('#content', [
 							field => th(field)
 						)))
 					]),
-					tbody(state.documents.map((doc, index) =>
-						tr({
-							class: {
-								toggled: (index === state.selection.toggledDoc)
-							}
-						}, [
-							td([
-								button('.fa.fa-pencil.blue', {
-									on: {click: el => actions.documents.edit(doc)}
-								}),
-								button('.fa.fa-trash.red', {
-									on: {
-										click: el =>
-											confirm(`Confirm deletion of ${doc._id}`,
-												() => actions.documents.delete(
-													state.selection.db,
-													state.selection.collection,
-													doc._id
+					tbody(state.documents
+						.filter(doc => JSON.stringify(doc)
+							.match(new RegExp(escapeStringRegexp(state.selection.filter), 'i')))
+						.map((doc, index) =>
+							tr({
+								class: {
+									toggled: (index === state.selection.toggledDoc)
+								}
+							}, [
+								td([
+									button('.fa.fa-pencil.blue', {
+										on: {click: el => actions.documents.edit(doc)}
+									}),
+									button('.fa.fa-trash.red', {
+										on: {
+											click: el =>
+												confirm(`Confirm deletion of ${doc._id}`,
+													() => actions.documents.delete(
+														state.selection.db,
+														state.selection.collection,
+														doc._id
+													)
 												)
-											)
-									}
-								}),
-								button('.fa.fa-expand.green', {
-									on: {click: el => actions.documents.toggle(index)}
-								})
-							])
-						].concat(Object.keys(doc).map(field =>
-							td(
-								(typeof doc[field] === 'string')
-									? [div(doc[field])]
-									: [pre(JSON.stringify(doc[field], null, 2))]
-							)
-						)))
+										}
+									}),
+									button('.fa.fa-expand.green', {
+										on: {click: el => actions.documents.toggle(index)}
+									})
+								])
+							].concat(Object.keys(doc).map(field =>
+								td(
+									(typeof doc[field] === 'string')
+										? [div(doc[field])]
+										: [pre(JSON.stringify(doc[field], null, 2))]
+								)
+							)))
 					))
 				]) : ''
 		]) : ''

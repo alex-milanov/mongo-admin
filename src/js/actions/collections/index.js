@@ -13,7 +13,7 @@ module.exports = function(store) {
 		.list()
 		.subscribe(collections => stream.onNext(
 			state => Object.assign({},
-				obj.patch(state, 'selection', {collection: null, toggledDoc: -1}),
+				obj.patch(state, 'selection', {collection: null, toggledDoc: -1, filter: ''}),
 				{collections, doc: null, error: null}
 			)
 		));
@@ -24,7 +24,7 @@ module.exports = function(store) {
 			.subscribe(() => stream.onNext(
 				state => Object.assign(
 					{},
-					obj.patch(state, 'selection', {collection, toggledDoc: -1}),
+					obj.patch(state, 'selection', {collection, toggledDoc: -1, filter: ''}),
 					{
 						documents: [],
 						collections: state.collections.concat([collection]), doc: null, error: null
@@ -33,7 +33,9 @@ module.exports = function(store) {
 			));
 
 	const select = collection => stream.onNext(
-		state => obj.patch(state, 'selection', {collection, toggledDoc: -1, doc: null, error: null})
+		state => obj.patch(state, 'selection',
+			{collection, toggledDoc: -1, filter: '', doc: null, error: null}
+		)
 	);
 
 	const _delete = (db, collection) => store({path: `dbs/${db}`, resource: 'collections'})
