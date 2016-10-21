@@ -14,7 +14,7 @@ const app = express();
 
 // express init
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(methodOverride());
 app.use(express.static(path.resolve(__dirname, '../dist/web')));
 
