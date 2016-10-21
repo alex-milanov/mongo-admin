@@ -16,7 +16,7 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(methodOverride());
-app.use(express.static(path.resolve(__dirname, '../web/dist')));
+app.use(express.static(path.resolve(__dirname, '../dist/web')));
 
 const mongoClient = require('mongodb').MongoClient;
 mongoClient.connect('mongodb://localhost:27017').then(db => {

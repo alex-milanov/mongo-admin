@@ -17043,7 +17043,7 @@ module.exports = function cast(schema, obj) {
               value.$minDistance = numbertype.castForQuery(value.$minDistance);
             }
             if (utils.isMongooseObject(value.$geometry)) {
-              value.$geometry = value.$geometry.toObject({ transform: false });
+              value.$geometry = value.$geometry.toObject({ virtuals: false });
             }
             value = value.$geometry.coordinates;
           } else if (geo === '$geoWithin') {
@@ -17705,7 +17705,7 @@ Document.prototype.set = function(path, val, type, options) {
             this.set(prefix + key, path[key], constructing);
           } else if (pathtype === 'nested' && path[key] instanceof Document) {
             this.set(prefix + key,
-                path[key].toObject({transform: false}), constructing);
+                path[key].toObject({virtuals: false}), constructing);
           } else if (strict === 'throw') {
             if (pathtype === 'nested') {
               throw new ObjectExpectedError(key, path[key]);
@@ -17969,15 +17969,13 @@ Document.prototype.$__set = function(pathToMark, path, constructing, parts, sche
     }
   }
 
-  var obj = this._doc;
-  var i = 0;
-  var l = parts.length;
-  var cur = '';
+  var obj = this._doc,
+      i = 0,
+      l = parts.length;
 
   for (; i < l; i++) {
-    var next = i + 1;
-    var last = next === l;
-    cur += (cur ? '.' + parts[i] : parts[i]);
+    var next = i + 1,
+        last = next === l;
 
     if (last) {
       obj[parts[i]] = val;
@@ -17991,8 +17989,7 @@ Document.prototype.$__set = function(pathToMark, path, constructing, parts, sche
       } else if (obj[parts[i]] && Array.isArray(obj[parts[i]])) {
         obj = obj[parts[i]];
       } else {
-        this.set(cur, {});
-        obj = obj[parts[i]];
+        obj = obj[parts[i]] = {};
       }
     }
   }
@@ -18376,7 +18373,7 @@ function _getPathsToValidate(doc) {
     if (doc.schema.nested[pathToCheck]) {
       var _v = doc.getValue(pathToCheck);
       if (isMongooseObject(_v)) {
-        _v = _v.toObject({ transform: false });
+        _v = _v.toObject({ virtuals: false });
       }
       var flat = flatten(_v, '', flattenOptions);
       var _subpaths = Object.keys(flat).map(function(p) {
@@ -18873,7 +18870,7 @@ function defineKey(prop, subprops, prototype, prefix, keys, options) {
       },
       set: function(v) {
         if (v instanceof Document) {
-          v = v.toObject({ transform: false });
+          v = v.toObject();
         }
         return (this.$__.scope || this).set(path, v);
       }
@@ -21348,7 +21345,6 @@ Schema.interpretAsType = function(path, obj, options) {
           childSchemaOptions.typeKey = options.typeKey;
         }
         var childSchema = new Schema(cast, childSchemaOptions);
-        childSchema.$implicitlyCreated = true;
         return new MongooseTypes.DocumentArray(path, childSchema, obj);
       } else {
         // Special case: empty object becomes mixed
@@ -21371,7 +21367,7 @@ Schema.interpretAsType = function(path, obj, options) {
       }
     }
 
-    return new MongooseTypes.Array(path, cast || MongooseTypes.Mixed, obj, options);
+    return new MongooseTypes.Array(path, cast || MongooseTypes.Mixed, obj);
   }
 
   if (type && type.instanceOfSchema) {
@@ -22430,21 +22426,16 @@ var geospatial = require('./operators/geospatial');
  * @api public
  */
 
-function SchemaArray(key, cast, options, schemaOptions) {
-  var typeKey = 'type';
-  if (schemaOptions && schemaOptions.typeKey) {
-    typeKey = schemaOptions.typeKey;
-  }
-
+function SchemaArray(key, cast, options) {
   if (cast) {
     var castOptions = {};
 
     if (utils.getFunctionName(cast.constructor) === 'Object') {
-      if (cast[typeKey]) {
+      if (cast.type) {
         // support { type: Woot }
         castOptions = utils.clone(cast); // do not alter user arguments
-        delete castOptions[typeKey];
-        cast = cast[typeKey];
+        delete castOptions.type;
+        cast = cast.type;
       } else {
         cast = Mixed;
       }
@@ -22994,7 +22985,7 @@ SchemaBuffer.prototype.castForQuery = function($conditional, val) {
     return handler.call(this, val);
   }
   val = $conditional;
-  return this.cast(val).toObject({ transform: false });
+  return this.cast(val).toObject();
 };
 
 /*!
@@ -23534,7 +23525,7 @@ DocumentArray.prototype.cast = function(value, doc, init, prev, options) {
     // Check if the document has a different schema (re gh-3701)
     if ((value[i] instanceof Subdocument) &&
         value[i].schema !== this.casterConstructor.schema) {
-      value[i] = value[i].toObject({transform: false});
+      value[i] = value[i].toObject({virtuals: false});
     }
     if (!(value[i] instanceof Subdocument) && value[i]) {
       if (init) {
@@ -23658,7 +23649,7 @@ function Embedded(schema, path, options) {
   _embedded.$isSingleNested = true;
   _embedded.prototype.$basePath = path;
   _embedded.prototype.toBSON = function() {
-    return this.toObject({ transform: false });
+    return this.toObject({ virtuals: false });
   };
 
   // apply methods
@@ -26043,7 +26034,7 @@ exports.modifiedPaths = modifiedPaths;
 function flatten(update, path, options) {
   var keys;
   if (update && utils.isMongooseObject(update) && !Buffer.isBuffer(update)) {
-    keys = Object.keys(update.toObject({ transform: false }));
+    keys = Object.keys(update.toObject({ virtuals: false }));
   } else {
     keys = Object.keys(update || {});
   }
@@ -26089,7 +26080,7 @@ function modifiedPaths(update, path, result) {
 
     result[path + key] = true;
     if (utils.isMongooseObject(val) && !Buffer.isBuffer(val)) {
-      val = val.toObject({ transform: false });
+      val = val.toObject({ virtuals: false });
     }
     if (shouldFlatten(val)) {
       modifiedPaths(val, path + key, result);
@@ -26352,7 +26343,7 @@ MongooseArray.mixin = {
    * ignore
    */
   toBSON: function() {
-    return this.toObject({ transform: false });
+    return this.toObject({ virtuals: false });
   },
 
   /**
@@ -26499,7 +26490,7 @@ MongooseArray.mixin = {
       if (val[0] instanceof EmbeddedDocument) {
         selector = pullOp['$or'] || (pullOp['$or'] = []);
         Array.prototype.push.apply(selector, val.map(function(v) {
-          return v.toObject({transform: false});
+          return v.toObject({virtuals: false});
         }));
       } else {
         selector = pullOp['_id'] || (pullOp['_id'] = {$in: []});
@@ -27436,7 +27427,7 @@ MongooseDocumentArray.mixin = {
    * ignore
    */
   toBSON: function() {
-    return this.toObject({ transform: false });
+    return this.toObject({ virtuals: false });
   },
 
   /**
@@ -27656,7 +27647,7 @@ EmbeddedDocument.prototype = Object.create(Document.prototype);
 EmbeddedDocument.prototype.constructor = EmbeddedDocument;
 
 EmbeddedDocument.prototype.toBSON = function() {
-  return this.toObject({ transform: false });
+  return this.toObject({ virtuals: false });
 };
 
 /**
@@ -27794,7 +27785,7 @@ EmbeddedDocument.prototype.update = function() {
  */
 
 EmbeddedDocument.prototype.inspect = function() {
-  return this.toObject({ transform: false, retainKeyOrder: true });
+  return this.toObject();
 };
 
 /**
@@ -28013,7 +28004,7 @@ function Subdocument(value, fields) {
 Subdocument.prototype = Object.create(Document.prototype);
 
 Subdocument.prototype.toBSON = function() {
-  return this.toObject({ transform: false });
+  return this.toObject({ virtuals: false });
 },
 
 /**
@@ -28103,12 +28094,8 @@ Subdocument.prototype.remove = function(options, callback) {
     options = null;
   }
 
-  // If removing entire doc, no need to remove subdoc
-  if (!options || !options.noop) {
-    this.$parent.set(this.$basePath, null);
-    registerRemoveListener(this);
-  }
-
+  this.$parent.set(this.$basePath, null);
+  registerRemoveListener(this);
   if (typeof callback === 'function') {
     callback(null);
   }
@@ -28970,7 +28957,7 @@ exports.mergeClone = function(to, fromObj) {
       if (exports.isObject(fromObj[key])) {
         var obj = fromObj[key];
         if (isMongooseObject(fromObj[key]) && !fromObj[key].isMongooseBuffer) {
-          obj = obj.toObject({ transform: false });
+          obj = obj.toObject({ virtuals: false });
         }
         exports.mergeClone(to[key], obj);
       } else {

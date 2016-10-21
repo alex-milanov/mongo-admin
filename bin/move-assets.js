@@ -9,14 +9,14 @@ const args = cli.parseArgs(process.argv.slice(2));
 
 const recipe = {
 	pre: {
-		'web/dist/fonts': 'node_modules/font-awesome/fonts'
+		'dist/web/fonts': 'node_modules/font-awesome/fonts'
 	},
 	post: {
-		'electron/app/css': 'web/dist/css',
-		'electron/app/fonts': 'web/dist/fonts',
-		// 'electron/app/index.html': 'web/dist/index.html',
-		'electron/app/js/actions': 'web/src/js/actions',
-		'electron/app/js/ui': 'web/src/js/ui'
+		'electron/app/css': 'dist/web/css',
+		'electron/app/fonts': 'dist/web/fonts',
+		// 'electron/app/index.html': 'dist/web/index.html',
+		'electron/app/js/actions': 'src/js/actions',
+		'electron/app/js/ui': 'src/js/ui'
 	}
 };
 
