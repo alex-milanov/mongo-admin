@@ -1,13 +1,28 @@
 'use strict';
 
 const vex = require('vex-js');
+
 const prompt = (message, cb) => vex.dialog.prompt({
 	message,
 	callback: v => v && v !== '' && cb(v)
 });
+
 const confirm = (message, onYes, onNo = () => false) => vex.dialog.confirm({
 	message,
 	callback: v => v ? onYes() : onNo()
+});
+
+const editConnection = (state, cb) => vex.dialog.open({
+	message: 'Edit connection: (wip)',
+	input: [
+		`<input name="server" type="text" value="${state.selection.server}" required />`,
+		`<input name="port" type="text" value="${state.selection.port}" required />`
+	].join(''),
+	buttons: [
+		Object.assign({}, vex.dialog.buttons.YES, {text: 'Connect'}),
+		Object.assign({}, vex.dialog.buttons.NO, {text: 'Cancel'})
+	],
+	callback: v => v && cb(v)
 });
 
 const {
@@ -17,6 +32,12 @@ const {
 } = require('iblokz').adapters.vdom;
 
 module.exports = ({state, actions}) => section('#left-pane', [
+	section('#connection', [
+		`${state.selection.server}:${state.selection.port}`,
+		button('.fa.fa-cogs.right', {
+			on: {click: el => editConnection(state, data => console.log(data))}
+		})
+	]),
 	section('#dbs', [
 		select({
 			on: {change: el => actions.dbs.select(el.target.value)}
@@ -25,7 +46,7 @@ module.exports = ({state, actions}) => section('#left-pane', [
 		].concat(state.dbs.map(db =>
 			option({attrs: {value: db, selected: (db === state.selection.db)}}, db)
 		))),
-		button({
+		button('.block', {
 			on: {
 				click: el => prompt('Enter Database Name', actions.dbs.create)
 			}
@@ -53,7 +74,7 @@ module.exports = ({state, actions}) => section('#left-pane', [
 						active: (collection === state.selection.collection)
 					}
 				}, collection))),
-			button({
+			button('.block', {
 				on: {
 					click: el =>
 						prompt('Enter Collection Name', collectionName =>

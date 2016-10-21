@@ -2866,6 +2866,12 @@ body {
   font-family: "Open Sans", Helvetica, Arial, sans-serif;
   background: #e6f6e8; }
 
+.left {
+  float: left !important; }
+
+.right {
+  float: right !important; }
+
 button {
   margin: 0px;
   padding: 0px;
@@ -2892,6 +2898,9 @@ button {
     outline: none;
     border-radius: 0px;
     border-image: none; }
+  button.block {
+    display: block;
+    width: 100%; }
   button.big {
     font-size: 14px;
     height: 24px;
@@ -2970,7 +2979,6 @@ button {
     padding: 0px 15px 0px 10px;
     line-height: 24px; }
     #ui #left-pane > section button {
-      width: 100%;
       margin: 0px;
       margin-top: 5px;
       text-align: left;
@@ -2979,6 +2987,15 @@ button {
       color: #333; }
       #ui #left-pane > section button:hover {
         background: #c1e5e9; }
+  #ui #left-pane #connection {
+    margin-bottom: 20px;
+    padding: 0px 15px;
+    line-height: 32px;
+    height: 32px; }
+    #ui #left-pane #connection > * {
+      margin: 0px;
+      line-height: 32px;
+      height: 32px; }
   #ui #left-pane #dbs {
     margin: 10px 0px; }
     #ui #left-pane #dbs::after {
@@ -2989,7 +3006,7 @@ button {
       height: 24px;
       position: absolute;
       top: 0px;
-      right: 25px;
+      right: 15px;
       color: #bbb;
       pointer-events: none; }
     #ui #left-pane #dbs select {

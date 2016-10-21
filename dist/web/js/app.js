@@ -6191,7 +6191,7 @@ var BSON = function() {
  */
 BSON.prototype.serialize = function serialize(object, checkKeys, asBuffer, serializeFunctions, index, ignoreUndefined) {
 	// Attempt to serialize
-	var serializationIndex = serializer(buffer, object, checkKeys, index || 0, 0, serializeFunctions, ignoreUndefined);
+	var serializationIndex = serializer(buffer, object, checkKeys, index || 0, 0, serializeFunctions, ignoreUndefined, []);
 	// Create the final buffer
 	var finishedBuffer = new Buffer(serializationIndex);
 	// Copy into the finished buffer
@@ -8715,7 +8715,7 @@ var encodeLookup = '0123456789abcdef'.split('')
 var decodeLookup = []
 var i = 0
 while (i < 10) decodeLookup[0x30 + i] = i++
-while (i < 16) decodeLookup[0x61 - 10 + i] = i++
+while (i < 16) decodeLookup[0x41 - 10 + i] = decodeLookup[0x61 - 10 + i] = i++
 
 var _Buffer = Buffer;
 var convertToHex = function(bytes) {
@@ -8994,7 +8994,7 @@ var deserialize = function(buffer, options, isArray) {
   var size = buffer[index] | buffer[index+1] << 8 | buffer[index+2] << 16 | buffer[index+3] << 24;
 
 	// Ensure buffer is valid size
-  if(size < 5 || buffer.length < size || (size + index) < buffer.length) {
+  if(size < 5 || buffer.length < size || (size + index) > buffer.length) {
 		throw new Error("corrupt bson message");
 	}
 
@@ -9911,7 +9911,13 @@ var serializeBuffer = function(buffer, key, value, index, isArray) {
   return index;
 }
 
-var serializeObject = function(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, isArray) {
+var serializeObject = function(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, isArray, path) {
+  for(var i = 0; i < path.length; i++) {
+    if(path[i] === value) throw new Error('cyclic dependency detected');
+  }
+
+  // Push value to stack
+  path.push(value);
   // Write the type
   buffer[index++] = Array.isArray(value) ? BSON.BSON_DATA_ARRAY : BSON.BSON_DATA_OBJECT;
   // Number of written bytes
@@ -9919,7 +9925,9 @@ var serializeObject = function(buffer, key, value, index, checkKeys, depth, seri
   // Encode the name
   index = index + numberOfWrittenBytes;
   buffer[index++] = 0;
-  var endIndex = serializeInto(buffer, value, checkKeys, index, depth + 1, serializeFunctions, ignoreUndefined);
+  var endIndex = serializeInto(buffer, value, checkKeys, index, depth + 1, serializeFunctions, ignoreUndefined, path);
+  // Pop stack
+  path.pop();
   // Write size
   var size = endIndex - index;
   return endIndex;
@@ -10183,8 +10191,12 @@ var serializeDBRef = function(buffer, key, value, index, depth, serializeFunctio
   return endIndex;
 }
 
-var serializeInto = function serializeInto(buffer, object, checkKeys, startingIndex, depth, serializeFunctions, ignoreUndefined) {
+var serializeInto = function serializeInto(buffer, object, checkKeys, startingIndex, depth, serializeFunctions, ignoreUndefined, path) {
   startingIndex = startingIndex || 0;
+  path = path || [];
+
+  // Push the object to the path
+  path.push(object);
 
   // Start place to serialize into
   var index = startingIndex + 4;
@@ -10221,7 +10233,7 @@ var serializeInto = function serializeInto(buffer, object, checkKeys, startingIn
       } else if(value instanceof RegExp || isRegExp(value)) {
         index = serializeRegExp(buffer, key, value, index, true);
       } else if(type == 'object' && value['_bsontype'] == null) {
-        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, true);
+        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, true, path);
       } else if(type == 'object' && value['_bsontype'] == 'Decimal128') {
         index = serializeDecimal128(buffer, key, value, index, true);
       } else if(value['_bsontype'] == 'Long' || value['_bsontype'] == 'Timestamp') {
@@ -10299,7 +10311,7 @@ var serializeInto = function serializeInto(buffer, object, checkKeys, startingIn
       } else if(value instanceof RegExp || isRegExp(value)) {
         index = serializeRegExp(buffer, key, value, index);
       } else if(type == 'object' && value['_bsontype'] == null) {
-        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined);
+        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, false, path);
       } else if(type == 'object' && value['_bsontype'] == 'Decimal128') {
         index = serializeDecimal128(buffer, key, value, index);
       } else if(value['_bsontype'] == 'Long' || value['_bsontype'] == 'Timestamp') {
@@ -10379,7 +10391,7 @@ var serializeInto = function serializeInto(buffer, object, checkKeys, startingIn
       } else if(value instanceof RegExp || isRegExp(value)) {
         index = serializeRegExp(buffer, key, value, index);
       } else if(type == 'object' && value['_bsontype'] == null) {
-        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined);
+        index = serializeObject(buffer, key, value, index, checkKeys, depth, serializeFunctions, ignoreUndefined, false, path);
       } else if(type == 'object' && value['_bsontype'] == 'Decimal128') {
         index = serializeDecimal128(buffer, key, value, index);
       } else if(value['_bsontype'] == 'Long' || value['_bsontype'] == 'Timestamp') {
@@ -10405,6 +10417,9 @@ var serializeInto = function serializeInto(buffer, object, checkKeys, startingIn
       }
     }
   }
+
+  // Remove the path
+  path.pop();
 
   // Final padding byte for object
   buffer[index++] = 0x00;
@@ -16692,6 +16707,33 @@ module.exports = ES6Promise;
 (function (Buffer){
 /* eslint-env browser */
 
+var PromiseProvider = require('./promise_provider');
+
+/**
+ * The Mongoose [Promise](#promise_Promise) constructor.
+ *
+ * @method Promise
+ * @api public
+ */
+
+Object.defineProperty(exports, 'Promise', {
+  get: function() {
+    return PromiseProvider.get();
+  },
+  set: function(lib) {
+    PromiseProvider.set(lib);
+  }
+});
+
+/**
+ * Storage layer for mongoose promises
+ *
+ * @method PromiseProvider
+ * @api public
+ */
+
+exports.PromiseProvider = PromiseProvider;
+
 /**
  * The [MongooseError](#error_MongooseError) constructor.
  *
@@ -16791,7 +16833,7 @@ if (typeof window !== 'undefined') {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"./document_provider.js":88,"./error":94,"./schema":108,"./schematype.js":123,"./types":130,"./utils.js":133,"./virtualtype":134,"buffer":33}],85:[function(require,module,exports){
+},{"./document_provider.js":88,"./error":94,"./promise_provider":107,"./schema":108,"./schematype.js":123,"./types":130,"./utils.js":133,"./virtualtype":134,"buffer":33}],85:[function(require,module,exports){
 /*!
  * Module dependencies.
  */
@@ -17043,7 +17085,7 @@ module.exports = function cast(schema, obj) {
               value.$minDistance = numbertype.castForQuery(value.$minDistance);
             }
             if (utils.isMongooseObject(value.$geometry)) {
-              value.$geometry = value.$geometry.toObject({ virtuals: false });
+              value.$geometry = value.$geometry.toObject({ transform: false });
             }
             value = value.$geometry.coordinates;
           } else if (geo === '$geoWithin') {
@@ -17467,14 +17509,25 @@ Document.prototype.init = function(doc, opts, fn) {
 function init(self, obj, doc, prefix) {
   prefix = prefix || '';
 
-  var keys = Object.keys(obj),
-      len = keys.length,
-      schema,
-      path,
-      i;
+  var keys = Object.keys(obj);
+  var len = keys.length;
+  var schema;
+  var path;
+  var i;
+  var index = 0;
 
-  while (len--) {
-    i = keys[len];
+  if (self.schema.options.retainKeyOrder) {
+    while (index < len) {
+      _init(index++);
+    }
+  } else {
+    while (len--) {
+      _init(len);
+    }
+  }
+
+  function _init(index) {
+    i = keys[index];
     path = prefix + i;
     schema = self.schema.path(path);
 
@@ -17660,65 +17713,76 @@ Document.prototype.set = function(path, val, type, options) {
       }
 
       var keys = Object.keys(path);
-      var i = keys.length;
+      var len = keys.length;
+      var i = 0;
       var pathtype;
       var key;
 
-      if (i === 0 && !this.schema.options.minimize) {
+      if (len === 0 && !this.schema.options.minimize) {
         if (val) {
           this.set(val, {});
         }
         return this;
       }
 
-      while (i--) {
-        key = keys[i];
-        var pathName = prefix + key;
-        pathtype = this.schema.pathType(pathName);
-
-        if (path[key] !== null
-            && path[key] !== void 0
-              // need to know if plain object - no Buffer, ObjectId, ref, etc
-            && utils.isObject(path[key])
-            && (!path[key].constructor || utils.getFunctionName(path[key].constructor) === 'Object')
-            && pathtype !== 'virtual'
-            && pathtype !== 'real'
-            && !(this.$__path(pathName) instanceof MixedSchema)
-            && !(this.schema.paths[pathName] &&
-            this.schema.paths[pathName].options &&
-            this.schema.paths[pathName].options.ref)) {
-          this.set(path[key], prefix + key, constructing);
-        } else if (strict) {
-          // Don't overwrite defaults with undefined keys (gh-3981)
-          if (constructing && path[key] === void 0 &&
-              this.get(key) !== void 0) {
-            continue;
-          }
-
-          if (pathtype === 'real' || pathtype === 'virtual') {
-            // Check for setting single embedded schema to document (gh-3535)
-            if (this.schema.paths[pathName] &&
-                this.schema.paths[pathName].$isSingleNested &&
-                path[key] instanceof Document) {
-              path[key] = path[key].toObject({virtuals: false});
-            }
-            this.set(prefix + key, path[key], constructing);
-          } else if (pathtype === 'nested' && path[key] instanceof Document) {
-            this.set(prefix + key,
-                path[key].toObject({virtuals: false}), constructing);
-          } else if (strict === 'throw') {
-            if (pathtype === 'nested') {
-              throw new ObjectExpectedError(key, path[key]);
-            } else {
-              throw new StrictModeError(key);
-            }
-          }
-        } else if (path[key] !== void 0) {
-          this.set(prefix + key, path[key], constructing);
+      if (this.schema.options.retainKeyOrder) {
+        while (i < len) {
+          _handleIndex.call(this, i++);
+        }
+      } else {
+        while (len--) {
+          _handleIndex.call(this, len);
         }
       }
 
       return this;
+    }
+  }
+
+  function _handleIndex(i) {
+    key = keys[i];
+    var pathName = prefix + key;
+    pathtype = this.schema.pathType(pathName);
+
+    if (path[key] !== null
+        && path[key] !== void 0
+          // need to know if plain object - no Buffer, ObjectId, ref, etc
+        && utils.isObject(path[key])
+        && (!path[key].constructor || utils.getFunctionName(path[key].constructor) === 'Object')
+        && pathtype !== 'virtual'
+        && pathtype !== 'real'
+        && !(this.$__path(pathName) instanceof MixedSchema)
+        && !(this.schema.paths[pathName] &&
+        this.schema.paths[pathName].options &&
+        this.schema.paths[pathName].options.ref)) {
+      this.set(path[key], prefix + key, constructing);
+    } else if (strict) {
+      // Don't overwrite defaults with undefined keys (gh-3981)
+      if (constructing && path[key] === void 0 &&
+          this.get(key) !== void 0) {
+        return;
+      }
+
+      if (pathtype === 'real' || pathtype === 'virtual') {
+        // Check for setting single embedded schema to document (gh-3535)
+        if (this.schema.paths[pathName] &&
+            this.schema.paths[pathName].$isSingleNested &&
+            path[key] instanceof Document) {
+          path[key] = path[key].toObject({virtuals: false});
+        }
+        this.set(prefix + key, path[key], constructing);
+      } else if (pathtype === 'nested' && path[key] instanceof Document) {
+        this.set(prefix + key,
+            path[key].toObject({transform: false}), constructing);
+      } else if (strict === 'throw') {
+        if (pathtype === 'nested') {
+          throw new ObjectExpectedError(key, path[key]);
+        } else {
+          throw new StrictModeError(key);
+        }
+      }
+    } else if (path[key] !== void 0) {
+      this.set(prefix + key, path[key], constructing);
     }
   }
 
@@ -17969,13 +18033,15 @@ Document.prototype.$__set = function(pathToMark, path, constructing, parts, sche
     }
   }
 
-  var obj = this._doc,
-      i = 0,
-      l = parts.length;
+  var obj = this._doc;
+  var i = 0;
+  var l = parts.length;
+  var cur = '';
 
   for (; i < l; i++) {
-    var next = i + 1,
-        last = next === l;
+    var next = i + 1;
+    var last = next === l;
+    cur += (cur ? '.' + parts[i] : parts[i]);
 
     if (last) {
       obj[parts[i]] = val;
@@ -17989,7 +18055,8 @@ Document.prototype.$__set = function(pathToMark, path, constructing, parts, sche
       } else if (obj[parts[i]] && Array.isArray(obj[parts[i]])) {
         obj = obj[parts[i]];
       } else {
-        obj = obj[parts[i]] = {};
+        this.set(cur, {});
+        obj = obj[parts[i]];
       }
     }
   }
@@ -18180,8 +18247,14 @@ Document.prototype.isModified = function(paths) {
       paths = paths.split(' ');
     }
     var modified = this.modifiedPaths();
-    return paths.some(function(path) {
+    var directModifiedPaths = Object.keys(this.$__.activePaths.states.modify);
+    var isModifiedChild = paths.some(function(path) {
       return !!~modified.indexOf(path);
+    });
+    return isModifiedChild || paths.some(function(path) {
+      return directModifiedPaths.some(function(mod) {
+        return mod === path || path.indexOf(mod + '.') === 0;
+      });
     });
   }
   return this.$__.activePaths.some('modify');
@@ -18373,7 +18446,7 @@ function _getPathsToValidate(doc) {
     if (doc.schema.nested[pathToCheck]) {
       var _v = doc.getValue(pathToCheck);
       if (isMongooseObject(_v)) {
-        _v = _v.toObject({ virtuals: false });
+        _v = _v.toObject({ transform: false });
       }
       var flat = flatten(_v, '', flattenOptions);
       var _subpaths = Object.keys(flat).map(function(p) {
@@ -18870,7 +18943,7 @@ function defineKey(prop, subprops, prototype, prefix, keys, options) {
       },
       set: function(v) {
         if (v instanceof Document) {
-          v = v.toObject();
+          v = v.toObject({ transform: false });
         }
         return (this.$__.scope || this).set(path, v);
       }
@@ -19142,7 +19215,11 @@ Document.prototype.$__handleReject = function handleReject(err) {
  */
 
 Document.prototype.$toObject = function(options, json) {
-  var defaultOptions = {transform: true, json: json};
+  var defaultOptions = {
+    transform: true,
+    json: json,
+    retainKeyOrder: this.schema.options.retainKeyOrder
+  };
 
   if (options && options.depopulate && !options._skipDepopulateTopLevel && this.$__.wasPopulated) {
     // populated paths that we set to a document
@@ -21099,7 +21176,8 @@ Schema.prototype.defaultOptions = function(options) {
     _id: true,
     noVirtualId: false, // deprecated, use { id: false }
     id: true,
-    typeKey: 'type'
+    typeKey: 'type',
+    retainKeyOrder: false
   }, options);
 
   if (options.read) {
@@ -21345,6 +21423,7 @@ Schema.interpretAsType = function(path, obj, options) {
           childSchemaOptions.typeKey = options.typeKey;
         }
         var childSchema = new Schema(cast, childSchemaOptions);
+        childSchema.$implicitlyCreated = true;
         return new MongooseTypes.DocumentArray(path, childSchema, obj);
       } else {
         // Special case: empty object becomes mixed
@@ -21367,7 +21446,7 @@ Schema.interpretAsType = function(path, obj, options) {
       }
     }
 
-    return new MongooseTypes.Array(path, cast || MongooseTypes.Mixed, obj);
+    return new MongooseTypes.Array(path, cast || MongooseTypes.Mixed, obj, options);
   }
 
   if (type && type.instanceOfSchema) {
@@ -22426,16 +22505,21 @@ var geospatial = require('./operators/geospatial');
  * @api public
  */
 
-function SchemaArray(key, cast, options) {
+function SchemaArray(key, cast, options, schemaOptions) {
+  var typeKey = 'type';
+  if (schemaOptions && schemaOptions.typeKey) {
+    typeKey = schemaOptions.typeKey;
+  }
+
   if (cast) {
     var castOptions = {};
 
     if (utils.getFunctionName(cast.constructor) === 'Object') {
-      if (cast.type) {
+      if (cast[typeKey]) {
         // support { type: Woot }
         castOptions = utils.clone(cast); // do not alter user arguments
-        delete castOptions.type;
-        cast = cast.type;
+        delete castOptions[typeKey];
+        cast = cast[typeKey];
       } else {
         cast = Mixed;
       }
@@ -22985,7 +23069,7 @@ SchemaBuffer.prototype.castForQuery = function($conditional, val) {
     return handler.call(this, val);
   }
   val = $conditional;
-  return this.cast(val).toObject();
+  return this.cast(val).toObject({ transform: false });
 };
 
 /*!
@@ -23525,7 +23609,7 @@ DocumentArray.prototype.cast = function(value, doc, init, prev, options) {
     // Check if the document has a different schema (re gh-3701)
     if ((value[i] instanceof Subdocument) &&
         value[i].schema !== this.casterConstructor.schema) {
-      value[i] = value[i].toObject({virtuals: false});
+      value[i] = value[i].toObject({transform: false});
     }
     if (!(value[i] instanceof Subdocument) && value[i]) {
       if (init) {
@@ -23649,7 +23733,10 @@ function Embedded(schema, path, options) {
   _embedded.$isSingleNested = true;
   _embedded.prototype.$basePath = path;
   _embedded.prototype.toBSON = function() {
-    return this.toObject({ virtuals: false });
+    return this.toObject({
+      transform: false,
+      retainKeyOrder: schema.options.retainKeyOrder
+    });
   };
 
   // apply methods
@@ -25055,7 +25142,8 @@ SchemaString.prototype.$conditionalHandlers =
       $lt: handleSingle,
       $lte: handleSingle,
       $options: handleSingle,
-      $regex: handleSingle
+      $regex: handleSingle,
+      $not: handleSingle
     });
 
 /**
@@ -26034,7 +26122,7 @@ exports.modifiedPaths = modifiedPaths;
 function flatten(update, path, options) {
   var keys;
   if (update && utils.isMongooseObject(update) && !Buffer.isBuffer(update)) {
-    keys = Object.keys(update.toObject({ virtuals: false }));
+    keys = Object.keys(update.toObject({ transform: false }));
   } else {
     keys = Object.keys(update || {});
   }
@@ -26080,7 +26168,7 @@ function modifiedPaths(update, path, result) {
 
     result[path + key] = true;
     if (utils.isMongooseObject(val) && !Buffer.isBuffer(val)) {
-      val = val.toObject({ virtuals: false });
+      val = val.toObject({ transform: false });
     }
     if (shouldFlatten(val)) {
       modifiedPaths(val, path + key, result);
@@ -26343,7 +26431,7 @@ MongooseArray.mixin = {
    * ignore
    */
   toBSON: function() {
-    return this.toObject({ virtuals: false });
+    return this.toObject({ transform: false });
   },
 
   /**
@@ -26490,7 +26578,7 @@ MongooseArray.mixin = {
       if (val[0] instanceof EmbeddedDocument) {
         selector = pullOp['$or'] || (pullOp['$or'] = []);
         Array.prototype.push.apply(selector, val.map(function(v) {
-          return v.toObject({virtuals: false});
+          return v.toObject({transform: false});
         }));
       } else {
         selector = pullOp['_id'] || (pullOp['_id'] = {$in: []});
@@ -27427,7 +27515,7 @@ MongooseDocumentArray.mixin = {
    * ignore
    */
   toBSON: function() {
-    return this.toObject({ virtuals: false });
+    return this.toObject({ transform: false });
   },
 
   /**
@@ -27647,7 +27735,7 @@ EmbeddedDocument.prototype = Object.create(Document.prototype);
 EmbeddedDocument.prototype.constructor = EmbeddedDocument;
 
 EmbeddedDocument.prototype.toBSON = function() {
-  return this.toObject({ virtuals: false });
+  return this.toObject({ transform: false });
 };
 
 /**
@@ -27785,7 +27873,7 @@ EmbeddedDocument.prototype.update = function() {
  */
 
 EmbeddedDocument.prototype.inspect = function() {
-  return this.toObject();
+  return this.toObject({ transform: false, retainKeyOrder: true });
 };
 
 /**
@@ -28004,7 +28092,7 @@ function Subdocument(value, fields) {
 Subdocument.prototype = Object.create(Document.prototype);
 
 Subdocument.prototype.toBSON = function() {
-  return this.toObject({ virtuals: false });
+  return this.toObject({ transform: false });
 },
 
 /**
@@ -28094,8 +28182,12 @@ Subdocument.prototype.remove = function(options, callback) {
     options = null;
   }
 
-  this.$parent.set(this.$basePath, null);
-  registerRemoveListener(this);
+  // If removing entire doc, no need to remove subdoc
+  if (!options || !options.noop) {
+    this.$parent.set(this.$basePath, null);
+    registerRemoveListener(this);
+  }
+
   if (typeof callback === 'function') {
     callback(null);
   }
@@ -28517,17 +28609,34 @@ exports.random = function() {
  * @api private
  */
 
-exports.merge = function merge(to, from) {
-  var keys = Object.keys(from),
-      i = keys.length,
-      key;
+exports.merge = function merge(to, from, options) {
+  options = options || {};
+  var keys = Object.keys(from);
+  var i = 0;
+  var len = keys.length;
+  var key;
 
-  while (i--) {
-    key = keys[i];
-    if (typeof to[key] === 'undefined') {
-      to[key] = from[key];
-    } else if (exports.isObject(from[key])) {
-      merge(to[key], from[key]);
+  if (options.retainKeyOrder) {
+    while (i < len) {
+      key = keys[i++];
+      if (typeof to[key] === 'undefined') {
+        to[key] = from[key];
+      } else if (exports.isObject(from[key])) {
+        merge(to[key], from[key]);
+      } else if (options.overwrite) {
+        to[key] = from[key];
+      }
+    }
+  } else {
+    while (len--) {
+      key = keys[len];
+      if (typeof to[key] === 'undefined') {
+        to[key] = from[key];
+      } else if (exports.isObject(from[key])) {
+        merge(to[key], from[key]);
+      } else if (options.overwrite) {
+        to[key] = from[key];
+      }
     }
   }
 };
@@ -28943,12 +29052,13 @@ exports.decorate = function(destination, source) {
  */
 
 exports.mergeClone = function(to, fromObj) {
-  var keys = Object.keys(fromObj),
-      i = keys.length,
-      key;
+  var keys = Object.keys(fromObj);
+  var len = keys.length;
+  var i = 0;
+  var key;
 
-  while (i--) {
-    key = keys[i];
+  while (i < len) {
+    key = keys[i++];
     if (typeof to[key] === 'undefined') {
       // make sure to retain key order here because of a bug handling the $each
       // operator in mongodb 2.4.4
@@ -28957,7 +29067,7 @@ exports.mergeClone = function(to, fromObj) {
       if (exports.isObject(fromObj[key])) {
         var obj = fromObj[key];
         if (isMongooseObject(fromObj[key]) && !fromObj[key].isMongooseBuffer) {
-          obj = obj.toObject({ virtuals: false });
+          obj = obj.toObject({ transform: false });
         }
         exports.mergeClone(to[key], obj);
       } else {
@@ -29904,7 +30014,7 @@ NodeCollection.prototype.findAndModify = function (match, update, options, cb) {
  */
 
 NodeCollection.prototype.findStream = function(match, findOptions, streamOptions) {
-  return this.collection.find(match, findOptions).stream(streamOptions);
+  return this.collection.find(match, findOptions);
 }
 
 /**
@@ -29992,15 +30102,15 @@ function Query (criteria, options) {
   this.setOptions(proto.options);
 
   this._conditions = proto._conditions
-    ? utils.clone(proto._conditions)
+    ? utils.clone(proto._conditions, { retainKeyOrder: this.options.retainKeyOrder })
     : {};
 
   this._fields = proto._fields
-    ? utils.clone(proto._fields)
+    ? utils.clone(proto._fields, { retainKeyOrder: this.options.retainKeyOrder })
     : undefined;
 
   this._update = proto._update
-    ? utils.clone(proto._update)
+    ? utils.clone(proto._update, { retainKeyOrder: this.options.retainKeyOrder })
     : undefined;
 
   this._path = proto._path || undefined;
@@ -30086,9 +30196,9 @@ Query.prototype.toConstructor = function toConstructor () {
   p.setOptions(this.options);
 
   p.op = this.op;
-  p._conditions = utils.clone(this._conditions);
-  p._fields = utils.clone(this._fields);
-  p._update = utils.clone(this._update);
+  p._conditions = utils.clone(this._conditions, { retainKeyOrder: this.options.retainKeyOrder });
+  p._fields = utils.clone(this._fields, { retainKeyOrder: this.options.retainKeyOrder });
+  p._update = utils.clone(this._update, { retainKeyOrder: this.options.retainKeyOrder });
   p._path = this._path;
   p._distinct = this._distinct;
   p._collection = this._collection;
@@ -45981,6 +46091,10 @@ module.exports = {
 };
 
 },{}],155:[function(require,module,exports){
+var NamespaceURIs = {
+  "xlink": "http://www.w3.org/1999/xlink"
+};
+
 var booleanAttrs = ["allowfullscreen", "async", "autofocus", "autoplay", "checked", "compact", "controls", "declare",
                 "default", "defaultchecked", "defaultmuted", "defaultselected", "defer", "disabled", "draggable",
                 "enabled", "formnovalidate", "hidden", "indeterminate", "inert", "ismap", "itemscope", "loop", "multiple",
@@ -45988,14 +46102,14 @@ var booleanAttrs = ["allowfullscreen", "async", "autofocus", "autoplay", "checke
                 "required", "reversed", "scoped", "seamless", "selected", "sortable", "spellcheck", "translate",
                 "truespeed", "typemustmatch", "visible"];
 
-var booleanAttrsDict = {};
+var booleanAttrsDict = Object.create(null);
 for(var i=0, len = booleanAttrs.length; i < len; i++) {
   booleanAttrsDict[booleanAttrs[i]] = true;
 }
 
 function updateAttrs(oldVnode, vnode) {
   var key, cur, old, elm = vnode.elm,
-      oldAttrs = oldVnode.data.attrs, attrs = vnode.data.attrs;
+      oldAttrs = oldVnode.data.attrs, attrs = vnode.data.attrs, namespaceSplit;
 
   if (!oldAttrs && !attrs) return;
   oldAttrs = oldAttrs || {};
@@ -46006,11 +46120,15 @@ function updateAttrs(oldVnode, vnode) {
     cur = attrs[key];
     old = oldAttrs[key];
     if (old !== cur) {
-      // TODO: add support to namespaced attributes (setAttributeNS)
       if(!cur && booleanAttrsDict[key])
         elm.removeAttribute(key);
-      else
-        elm.setAttribute(key, cur);
+      else {
+        namespaceSplit = key.split(":");
+        if(namespaceSplit.length > 1 && NamespaceURIs.hasOwnProperty(namespaceSplit[0]))
+          elm.setAttributeNS(NamespaceURIs[namespaceSplit[0]], key, cur);
+        else
+          elm.setAttribute(key, cur);
+      }
     }
   }
   //remove removed attributes
@@ -49931,12 +50049,7 @@ module.exports = function (store) {
 	var list = function list() {
 		return store({ path: 'dbs', resource: 'dbs' }).list().subscribe(function (dbs) {
 			return stream.onNext(function (state) {
-				return Object.assign({}, state, { dbs: dbs, selection: {
-						server: 'localhost',
-						db: null,
-						collection: null,
-						toggledRow: -1
-					} });
+				return Object.assign({}, obj.patch(state, 'selection', { db: null, collection: null, toggledRow: -1 }), { dbs: dbs });
 			});
 		});
 	};
@@ -50083,6 +50196,7 @@ module.exports = function (store) {
 			return {
 				selection: {
 					server: 'localhost',
+					port: 27017,
 					db: null,
 					collection: null,
 					toggledRow: -1
@@ -50298,6 +50412,7 @@ module.exports = function (_ref) {
 'use strict';
 
 var vex = require('vex-js');
+
 var prompt = function prompt(message, cb) {
 	return vex.dialog.prompt({
 		message: message,
@@ -50306,6 +50421,7 @@ var prompt = function prompt(message, cb) {
 		}
 	});
 };
+
 var confirm = function confirm(message, onYes) {
 	var onNo = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : function () {
 		return false;
@@ -50314,6 +50430,17 @@ var confirm = function confirm(message, onYes) {
 		message: message,
 		callback: function callback(v) {
 			return v ? onYes() : onNo();
+		}
+	});
+};
+
+var editConnection = function editConnection(state, cb) {
+	return vex.dialog.open({
+		message: 'Edit connection: (wip)',
+		input: ['<input name="server" type="text" value="' + state.selection.server + '" required />', '<input name="port" type="text" value="' + state.selection.port + '" required />'].join(''),
+		buttons: [Object.assign({}, vex.dialog.buttons.YES, { text: 'Connect' }), Object.assign({}, vex.dialog.buttons.NO, { text: 'Cancel' })],
+		callback: function callback(v) {
+			return v && cb(v);
 		}
 	});
 };
@@ -50346,13 +50473,19 @@ var button = _require$adapters$vdo.button;
 module.exports = function (_ref) {
 	var state = _ref.state;
 	var actions = _ref.actions;
-	return section('#left-pane', [section('#dbs', [select({
+	return section('#left-pane', [section('#connection', [state.selection.server + ':' + state.selection.port, button('.fa.fa-cogs.right', {
+		on: { click: function click(el) {
+				return editConnection(state, function (data) {
+					return console.log(data);
+				});
+			} }
+	})]), section('#dbs', [select({
 		on: { change: function change(el) {
 				return actions.dbs.select(el.target.value);
 			} }
 	}, [option({ attrs: { value: '' } }, 'Select Database')].concat(state.dbs.map(function (db) {
 		return option({ attrs: { value: db, selected: db === state.selection.db } }, db);
-	}))), button({
+	}))), button('.block', {
 		on: {
 			click: function click(el) {
 				return prompt('Enter Database Name', actions.dbs.create);
@@ -50382,7 +50515,7 @@ module.exports = function (_ref) {
 				active: collection === state.selection.collection
 			}
 		}, collection);
-	})), button({
+	})), button('.block', {
 		on: {
 			click: function click(el) {
 				return prompt('Enter Collection Name', function (collectionName) {

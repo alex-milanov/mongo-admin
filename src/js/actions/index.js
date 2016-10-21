@@ -20,6 +20,7 @@ module.exports = function(store) {
 			state => ({
 				selection: {
 					server: 'localhost',
+					port: 27017,
 					db: null,
 					collection: null,
 					toggledRow: -1

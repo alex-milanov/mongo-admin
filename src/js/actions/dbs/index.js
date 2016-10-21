@@ -12,12 +12,10 @@ module.exports = function(store) {
 	const list = () => store({path: 'dbs', resource: 'dbs'})
 		.list()
 		.subscribe(dbs => stream.onNext(
-			state => Object.assign({}, state, {dbs, selection: {
-				server: 'localhost',
-				db: null,
-				collection: null,
-				toggledRow: -1
-			}})
+			state => Object.assign({},
+				obj.patch(state, 'selection', {db: null, collection: null, toggledRow: -1}),
+				{dbs}
+			)
 		));
 
 	const select = db => {
