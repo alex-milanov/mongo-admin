@@ -8,7 +8,7 @@ vex.defaultOptions.className = 'vex-theme-top';
 const {
 	section, h1, h2, i, select, option, ul, li, header,
 	table, tbody, thead, tr, td, th, pre, button, div
-} = require('iblokz').adapters.vdom;
+} = require('iblokz/adapters/vdom');
 
 const content = require('./content');
 const leftPane = require('./left-pane');

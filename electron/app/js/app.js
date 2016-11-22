@@ -3,16 +3,16 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
-const vdom = require('iblokz').adapters.vdom;
 const ipc = require('electron').ipcRenderer;
-const store = require('iblokz').app.store;
+const vdom = require('iblokz/adapters/vdom');
+const store = require('iblokz/app/store');
 
-const actions = require('./js/actions')(store.init({
+const actions = require('../../src/js/actions')(store.init({
 	type: 'ipc',
 	agent: ipc
 }));
 
-const ui = require('./js/ui');
+const ui = require('../../src/js/ui');
 
 const state$ = actions.stream
 	.scan((state, change) => change(state), {})

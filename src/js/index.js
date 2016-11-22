@@ -3,9 +3,9 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
-const vdom = require('iblokz').adapters.vdom;
-const request = require('iblokz').adapters.request;
-const store = require('iblokz').app.store;
+const vdom = require('iblokz/adapters/vdom');
+const request = require('iblokz/adapters/request');
+const store = require('iblokz/app/store');
 
 const actions = require('./actions')(store.init({
 	type: 'http',
