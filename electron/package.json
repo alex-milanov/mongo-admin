@@ -5,7 +5,7 @@
   "description": "Mongo Admin Client",
   "main": "main.js",
   "dependencies": {
-    "iblokz": "../iblokz",
+    "iblokz": "file:../lib/iblokz",
     "mongoose": "^4.5.7",
     "rx": "^4.1.0",
     "snabbdom": "^0.5.3",
