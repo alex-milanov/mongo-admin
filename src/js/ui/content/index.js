@@ -99,12 +99,17 @@ module.exports = ({state, actions}) => section('#content', [
 										on: {click: el => actions.documents.toggle(index)}
 									})
 								])
-							].concat(Object.keys(doc).map(field =>
-								td(
-									(typeof doc[field] === 'string')
-										? [div(doc[field])]
-										: [pre(JSON.stringify(doc[field], null, 2))]
-								)
+							].concat(
+								Object.keys(state.documents.reduce((m, o) => Object.assign(m, o), {})).map(field =>
+									td(
+										(doc[field])
+										? (typeof doc[field] === 'string')
+											? [div(doc[field])]
+											: (doc[field] instanceof Array)
+												? doc[field].join(', ')
+												: [pre(JSON.stringify(doc[field], null, 2))]
+										: ''
+									)
 							)))
 					))
 				]) : ''

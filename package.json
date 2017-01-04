@@ -5,16 +5,13 @@
   "main": "index.js",
   "scripts": {
     "prebuild": "node bin/move-assets.js",
-    "build": "npm run build:js && npm run build:sass && npm run build:pug",
-		"prebuild:js": "npm i iblokz",
+    "build": "npm run build:js && npm run build:sass",
     "build:js": "browserify src/js/index.js -o dist/web/js/app.js -t [ babelify --presets [ es2015 stage-1 ] ]",
     "build:sass": "node-sass --include-path=$(node bin/sass-paths.js) src/sass/style.sass dist/web/css/style.css",
-		"postbuild:sass": "node bin/move-assets.js --recipe=post:sass",
-    "build:pug": "pug --out dist/web --pretty src/pug/index.pug",
-    "watch": "npm run watch:js & npm run watch:sass & npm run watch:pug & npm run livereload",
-    "watch:js": "nodemon --watch 'src/js' --watch 'lib' --exec 'npm run build:js'",
+    "postbuild:sass": "node bin/move-assets.js --recipe=post:sass",
+    "watch": "npm run watch:js & npm run watch:sass & npm run livereload",
+    "watch:js": "watchify src/js/index.js -o dist/js/app.js -t [ babelify --presets [ es2015 stage-1 ] ]",
     "watch:sass": "npm run build:sass -- --watch src/sass/**/*",
-    "watch:pug": "npm run build:pug -- --watch",
     "livereload": "livereload 'src' -e 'sass' -w 1000 -d",
     "lint": "npm run lint:server && npm run lint:web",
     "lint:server": "eslint server",
@@ -35,13 +32,13 @@
     "escape-string-regexp": "^1.0.5",
     "express": "^4.14.0",
     "font-awesome": "^4.6.3",
-    "iblokz": "file:lib/iblokz",
+    "iblokz": "github:iblokz/iblokz",
     "method-override": "^2.3.6",
     "mongo-admin-electron": "file:electron",
     "mongoose": "^4.6.2",
     "rx": "^4.1.0",
     "snabbdom": "^0.5.3",
-    "superagent": "^2.1.0",
+    "superagent": "^3.3.1",
     "vex-js": "^3.0.0"
   },
   "devDependencies": {
@@ -57,7 +54,8 @@
     "livereload": "^0.5.0",
     "node-sass": "^3.8.0",
     "nodemon": "^1.10.0",
-    "pug-cli": "^1.0.0-alpha6"
+    "pug-cli": "^1.0.0-alpha6",
+    "watchify": "^3.8.0"
   },
   "author": "",
   "license": "ISC"
