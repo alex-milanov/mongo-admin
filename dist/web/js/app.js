@@ -172,11 +172,19 @@ const patch = (o, k, v) => Object.assign(clone(o),
 		: keyValue(k, typeof o[k] === 'object' && Object.assign(clone(o[k]), v) || v)
 );
 
+const chainCall = (o, chain) => chain.reduce(
+	(o, link) => (typeof link[1] === 'undefined')
+		? o[link[0]]()
+		: o[link[0]](link[1]),
+	o
+);
+
 module.exports = {
 	keyValue,
 	clone,
 	sub,
-	patch
+	patch,
+	chainCall
 };
 
 },{}],6:[function(require,module,exports){
