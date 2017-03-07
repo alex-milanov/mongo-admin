@@ -71,9 +71,9 @@ let mainWindow;
 
 function createWindow() {
 	// Create the browser window.
-	mainWindow = new BrowserWindow({icon: `./build/icon.png`});
+	mainWindow = new BrowserWindow({icon: `${__dirname}/assets/icon-48.png`});
 	// and load the index.html of the app.
-	mainWindow.loadURL(`file://${__dirname}/app/index.html`);
+	mainWindow.loadURL(`file://${__dirname}/dist/web/index.html?store=ipc`);
 
 	// Open the DevTools.
 	// mainWindow.webContents.openDevTools();

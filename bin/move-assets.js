@@ -3,20 +3,21 @@
 const fse = require('fs-extra');
 const path = require('path');
 
-const cli = require('iblokz/common/cli');
+const {str} = require('iblokz-data');
 
-const args = cli.parseArgs(process.argv.slice(2));
+const parseArgs = arr => arr
+	.map(param => param.split('='))
+	.map(param => (param.length === 2)
+		? param
+		: param.concat([true]))
+	.reduce((o, param) =>
+		(o[str.toCamelCase(param[0].replace('--', ''), '-')] = param[1]) && o, {});
+
+const args = parseArgs(process.argv.slice(2));
 
 const recipe = {
-	'pre': {
+	pre: {
 		'dist/web/fonts': 'node_modules/font-awesome/fonts'
-	},
-	'post:sass': {
-		'electron/app/css': 'dist/web/css',
-		'electron/app/fonts': 'dist/web/fonts',
-		// 'electron/app/index.html': 'dist/web/index.html',
-		'electron/app/js/actions': 'src/js/actions',
-		'electron/app/js/ui': 'src/js/ui'
 	}
 };
 

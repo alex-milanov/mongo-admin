@@ -29,7 +29,7 @@ const {
 	section, h1, h2, i, select, option, ul, li, div, p,
 	table, tbody, thead, tr, td, th, pre,
 	form, textarea, input, button
-} = require('iblokz/adapters/vdom');
+} = require('iblokz-snabbdom-helpers');
 
 module.exports = ({state, actions}) => section('#left-pane', [
 	section('#connection', [

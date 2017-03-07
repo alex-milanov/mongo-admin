@@ -3,15 +3,20 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
-const vdom = require('iblokz/adapters/vdom');
-const request = require('iblokz/adapters/request');
-const store = require('iblokz/app/store');
+const vdom = require('iblokz-snabbdom-helpers');
 
-const actions = require('./actions')(store.init({
-	type: 'http',
-	agent: request,
-	url: 'http://localhost:8080/api'
-}));
+console.log(344);
+
+// store
+const storeUtil = require('./util/store');
+const storeType = (window.location.search.match(/store=([a-z]+)/i) || ['http']).pop();
+console.log(storeType);
+const store = storeUtil.init(Object.assign({type: storeType}, (storeType === 'ipc')
+	? {agent: window.require('electron').ipcRenderer}
+	: {agent: require('./util/request'), url: 'http://localhost:8080/api'}
+));
+
+const actions = require('./actions')(store);
 
 const ui = require('./ui');
 

@@ -3,8 +3,7 @@
 const Rx = require('rx');
 const $ = Rx.Observable;
 
-const request = require('iblokz/adapters/request');
-const obj = require('iblokz/common/obj');
+const {obj} = require('iblokz-data');
 
 module.exports = function(store) {
 	const stream = new Rx.Subject();
