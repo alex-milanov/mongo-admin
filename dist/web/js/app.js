@@ -17571,50 +17571,47 @@ var $ = Rx.Observable;
 var _require = require('iblokz-data'),
     obj = _require.obj;
 
-module.exports = function (store) {
-	var stream = new Rx.Subject();
+var store = require('../../util/store').init();
 
-	var list = function list(db) {
-		return store({ path: 'dbs/' + db, resource: 'collections' }).list().subscribe(function (collections) {
-			return stream.onNext(function (state) {
-				return Object.assign({}, obj.patch(state, 'selection', { collection: null, toggledDoc: -1, filter: '' }), { collections: collections, doc: null, error: null });
+var list = function list(db) {
+	return store({ path: 'dbs/' + db, resource: 'collections' }).list().map(function (collections) {
+		return function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { collection: null, toggledDoc: -1, filter: '' }), { collections: collections, doc: null, error: null });
+		};
+	});
+};
+
+var create = function create(db, collection) {
+	return store({ path: 'dbs/' + db, resource: 'collections' }).create({ collection: collection }).map(function () {
+		return function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledDoc: -1, filter: '' }), {
+				documents: [],
+				collections: state.collections.concat([collection]), doc: null, error: null
 			});
-		});
-	};
+		};
+	});
+};
 
-	var create = function create(db, collection) {
-		return store({ path: 'dbs/' + db, resource: 'collections' }).create({ collection: collection }).subscribe(function () {
-			return stream.onNext(function (state) {
-				return Object.assign({}, obj.patch(state, 'selection', { collection: collection, toggledDoc: -1, filter: '' }), {
-					documents: [],
-					collections: state.collections.concat([collection]), doc: null, error: null
-				});
-			});
-		});
-	};
-
-	var select = function select(collection) {
-		return stream.onNext(function (state) {
-			return obj.patch(state, 'selection', { collection: collection, toggledDoc: -1, filter: '', doc: null, error: null });
-		});
-	};
-
-	var _delete = function _delete(db, collection) {
-		return store({ path: 'dbs/' + db, resource: 'collections' }).delete(collection).subscribe(function () {
-			return list();
-		});
-	};
-
-	return {
-		stream: stream,
-		list: list,
-		create: create,
-		select: select,
-		delete: _delete
+var select = function select(collection) {
+	return function (state) {
+		return obj.patch(state, 'selection', { collection: collection, toggledDoc: -1, filter: '', doc: null, error: null });
 	};
 };
 
-},{"iblokz-data":7,"rx":14}],36:[function(require,module,exports){
+var _delete = function _delete(db, collection) {
+	return store({ path: 'dbs/' + db, resource: 'collections' }).delete(collection).flatMap(function () {
+		return list();
+	});
+};
+
+module.exports = {
+	list: list,
+	create: create,
+	select: select,
+	delete: _delete
+};
+
+},{"../../util/store":44,"iblokz-data":7,"rx":14}],36:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -17623,45 +17620,42 @@ var $ = Rx.Observable;
 var _require = require('iblokz-data'),
     obj = _require.obj;
 
-module.exports = function (store) {
-	var stream = new Rx.Subject();
+var store = require('../../util/store').init();
 
-	var list = function list() {
-		return store({ path: 'dbs', resource: 'dbs' }).list().subscribe(function (dbs) {
-			return stream.onNext(function (state) {
-				return Object.assign({}, obj.patch(state, 'selection', { db: null, collection: null, toggledRow: -1, filter: '' }), { dbs: dbs });
-			});
-		});
-	};
+var list = function list() {
+	return store({ path: 'dbs', resource: 'dbs' }).list().map(function (dbs) {
+		return function (state) {
+			return Object.assign({}, obj.patch(state, 'selection', { db: null, collection: null, toggledRow: -1, filter: '' }), { dbs: dbs });
+		};
+	});
+};
 
-	var select = function select(db) {
-		stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1, filter: '' }), { documents: [], doc: null, error: null });
-		});
-	};
-
-	var create = function create(db) {
-		return stream.onNext(function (state) {
-			return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1, filter: '' }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
-		});
-	};
-
-	var _delete = function _delete(db) {
-		return store({ path: 'dbs', resource: 'dbs' }).delete(db).subscribe(function () {
-			return list();
-		});
-	};
-
-	return {
-		stream: stream,
-		list: list,
-		create: create,
-		select: select,
-		delete: _delete
+var select = function select(db) {
+	return function (state) {
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1, filter: '' }), { documents: [], doc: null, error: null });
 	};
 };
 
-},{"iblokz-data":7,"rx":14}],37:[function(require,module,exports){
+var create = function create(db) {
+	return function (state) {
+		return Object.assign({}, obj.patch(state, 'selection', { db: db, collection: null, toggledRow: -1, filter: '' }), { collections: [], dbs: state.dbs.concat([db]), documents: [], doc: null, error: null });
+	};
+};
+
+var _delete = function _delete(db) {
+	return store({ path: 'dbs', resource: 'dbs' }).delete(db).flatMap(function () {
+		return list();
+	});
+};
+
+module.exports = {
+	list: list,
+	create: create,
+	select: select,
+	delete: _delete
+};
+
+},{"../../util/store":44,"iblokz-data":7,"rx":14}],37:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -17670,97 +17664,85 @@ var $ = Rx.Observable;
 var _require = require('iblokz-data'),
     obj = _require.obj;
 
-module.exports = function (store) {
-	var stream = new Rx.Subject();
+var store = require('../../util/store').init();
 
-	var list = function list(db, collection) {
-		return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).list().subscribe(function (documents) {
-			return stream.onNext(function (state) {
-				return Object.assign({}, state, { documents: documents, doc: null, error: null });
-			});
+var list = function list(db, collection) {
+	return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).list().map(function (documents) {
+		return function (state) {
+			return Object.assign({}, state, { documents: documents, doc: null, error: null });
+		};
+	});
+};
+
+var toggle = function toggle(index) {
+	return function (state) {
+		return obj.patch(state, 'selection', {
+			toggledDoc: state.selection.toggledDoc === index ? -1 : index
 		});
-	};
-
-	var toggle = function toggle(index) {
-		return stream.onNext(function (state) {
-			return obj.patch(state, 'selection', {
-				toggledDoc: state.selection.toggledDoc === index ? -1 : index
-			});
-		});
-	};
-
-	var filter = function filter(_filter) {
-		return stream.onNext(function (state) {
-			return obj.patch(state, 'selection', { filter: _filter });
-		});
-	};
-
-	var create = function create() {
-		return stream.onNext(function (state) {
-			return Object.assign({}, state, { doc: {}, error: null });
-		});
-	};
-
-	var edit = function edit(doc) {
-		return stream.onNext(function (state) {
-			return Object.assign({}, state, { doc: doc, error: null });
-		});
-	};
-
-	var save = function save(db, collection, doc) {
-		return doc._id !== undefined ?
-		// update
-		store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).update(doc._id, doc).subscribe(function () {
-			stream.onNext(function (state) {
-				return Object.assign({}, state, { doc: null, error: null });
-			});
-			list(db, collection);
-		})
-		// create
-		: store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).create(doc).subscribe(function () {
-			stream.onNext(function (state) {
-				return Object.assign({}, state, { doc: null, error: null });
-			});
-			list(db, collection);
-		});
-	};
-
-	var cancel = function cancel() {
-		return stream.onNext(function (state) {
-			return Object.assign({}, state, { doc: null, error: null });
-		});
-	};
-
-	var saveError = function saveError(error) {
-		return stream.onNext(function (state) {
-			return Object.assign({}, state, { error: error });
-		});
-	};
-
-	var _delete = function _delete(db, collection, id) {
-		return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).delete(id).subscribe(function () {
-			stream.onNext(function (state) {
-				return Object.assign({}, state, { doc: null, error: null });
-			});
-			list(db, collection);
-		});
-	};
-
-	return {
-		stream: stream,
-		list: list,
-		toggle: toggle,
-		filter: filter,
-		create: create,
-		edit: edit,
-		save: save,
-		saveError: saveError,
-		cancel: cancel,
-		delete: _delete
 	};
 };
 
-},{"iblokz-data":7,"rx":14}],38:[function(require,module,exports){
+var filter = function filter(_filter) {
+	return function (state) {
+		return obj.patch(state, 'selection', { filter: _filter });
+	};
+};
+
+var create = function create() {
+	return function (state) {
+		return Object.assign({}, state, { doc: {}, error: null });
+	};
+};
+
+var edit = function edit(doc) {
+	return function (state) {
+		return Object.assign({}, state, { doc: doc, error: null });
+	};
+};
+
+var save = function save(db, collection, doc) {
+	return doc._id !== undefined ?
+	// update
+	store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).update(doc._id, doc).flatMap(function () {
+		return list(db, collection);
+	})
+	// create
+	: store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).create(doc).flatMap(function () {
+		return list(db, collection);
+	});
+};
+
+var cancel = function cancel() {
+	return function (state) {
+		return Object.assign({}, state, { doc: null, error: null });
+	};
+};
+
+var saveError = function saveError(error) {
+	return function (state) {
+		return Object.assign({}, state, { error: error });
+	};
+};
+
+var _delete = function _delete(db, collection, id) {
+	return store({ path: 'dbs/' + db + '/' + collection, resource: 'documents' }).delete(id).flatMap(function () {
+		return list(db, collection);
+	});
+};
+
+module.exports = {
+	list: list,
+	toggle: toggle,
+	filter: filter,
+	create: create,
+	edit: edit,
+	save: save,
+	saveError: saveError,
+	cancel: cancel,
+	delete: _delete
+};
+
+},{"../../util/store":44,"iblokz-data":7,"rx":14}],38:[function(require,module,exports){
 'use strict';
 
 var Rx = require('rx');
@@ -17769,70 +17751,89 @@ var $ = Rx.Observable;
 var _require = require('iblokz-data'),
     obj = _require.obj;
 
-module.exports = function (store) {
-	var stream = new Rx.Subject();
+var dbs = require('./dbs');
+var collections = require('./collections');
+var documents = require('./documents');
 
-	var dbs = require('./dbs')(store);
-	var collections = require('./collections')(store);
-	var documents = require('./documents')(store);
+var initial = {
+	selection: {
+		server: 'localhost',
+		port: 27017,
+		db: null,
+		collection: null,
+		toggledRow: -1,
+		filter: ''
+	},
+	error: null,
+	doc: null,
+	dbs: [],
+	collections: [],
+	documents: []
+};
 
-	console.log(dbs, collections, documents);
-
-	var init = function init() {
-		stream.onNext(function (state) {
-			return {
-				selection: {
-					server: 'localhost',
-					port: 27017,
-					db: null,
-					collection: null,
-					toggledRow: -1,
-					filter: ''
-				},
-				error: null,
-				doc: null,
-				dbs: [],
-				collections: [],
-				documents: []
-			};
-		});
-		dbs.list();
-	};
-
-	return {
-		init: init,
-		dbs: dbs,
-		collections: collections,
-		documents: documents,
-		stream: $.merge(stream, dbs.stream, collections.stream, documents.stream)
-	};
+module.exports = {
+	initial: initial,
+	dbs: dbs,
+	collections: collections,
+	documents: documents
 };
 
 },{"./collections":35,"./dbs":36,"./documents":37,"iblokz-data":7,"rx":14}],39:[function(require,module,exports){
 'use strict';
+
+// vex code
+
+var vex = require('vex-js');
+vex.registerPlugin(require('vex-dialog'));
+vex.defaultOptions.className = 'vex-theme-top';
 
 var Rx = require('rx');
 var $ = Rx.Observable;
 
 var vdom = require('iblokz-snabbdom-helpers');
 
-console.log(123);
-
-// store
-var storeUtil = require('./util/store');
-var storeType = (window.location.search.match(/store=([a-z]+)/i) || ['http']).pop();
-console.log(storeType);
-var store = storeUtil.init(Object.assign({ type: storeType }, storeType === 'ipc' ? { agent: window.require('electron').ipcRenderer } : { agent: require('./util/request'), url: 'http://localhost:8080/api' }));
-
-var actions = require('./actions')(store);
-
+// app
+var app = require('./util/app');
+var actions = require('./actions');
 var ui = require('./ui');
 
-var state$ = actions.stream.scan(function (state, change) {
+// prep actions
+var actions$ = new Rx.Subject();
+actions = app.adapt(actions);
+actions.stream.subscribe(actions$);
+console.log(actions);
+
+// hot reloading
+if (module.hot) {
+	// actions
+	$.fromEventPattern(function (h) {
+		return module.hot.accept("./actions", h);
+	}).subscribe(function () {
+		actions = app.adapt(require('./actions'));
+		actions.stream.subscribe(actions$);
+		actions$.onNext(function (state) {
+			return state;
+		});
+	});
+	// ui
+	module.hot.accept("./ui", function () {
+		ui = require('./ui');
+		actions$.onNext(function (state) {
+			return state;
+		});
+	});
+}
+
+actions.dbs.list();
+
+// actions -> state
+var state$ = actions$.startWith(function () {
+	return actions.initial;
+}).scan(function (state, change) {
 	return change(state);
-}, {}).distinctUntilChanged(function (state) {
-	return state;
-});
+}, {}).map(function (state) {
+	return console.log(state), state;
+}).share();
 
 // hooks
 // on db change list collections
@@ -17857,7 +17858,7 @@ vdom.patchStream(ui$, '#ui');
 
 window.actions = actions;
 
-},{"./actions":38,"./ui":41,"./util/request":43,"./util/store":44,"iblokz-snabbdom-helpers":12,"rx":14}],40:[function(require,module,exports){
+},{"./actions":38,"./ui":41,"./util/app":43,"iblokz-snabbdom-helpers":12,"rx":14,"vex-dialog":33,"vex-js":34}],40:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -17931,7 +17932,8 @@ module.exports = function (_ref) {
 		on: { input: function input(el) {
 				return actions.documents.filter(el.target.value);
 			} },
-		attrs: { placeholder: 'Filter' }
+		attrs: { placeholder: 'Filter' },
+		props: { value: state.selection.filter }
 	})]), state.documents.length > 0 ? table('#results', [thead([tr([th('')].concat(Object.keys(state.documents.reduce(function (m, o) {
 		return Object.assign(m, o);
 	}, {})).map(function (field) {
@@ -17970,12 +17972,6 @@ module.exports = function (_ref) {
 },{"escape-string-regexp":5,"iblokz-snabbdom-helpers":12,"rx":14,"vex-js":34}],41:[function(require,module,exports){
 'use strict';
 
-// vex code
-
-var vex = require('vex-js');
-vex.registerPlugin(require('vex-dialog'));
-vex.defaultOptions.className = 'vex-theme-top';
-
 var _require = require('iblokz-snabbdom-helpers'),
     section = _require.section,
     h1 = _require.h1,
@@ -18005,7 +18001,7 @@ module.exports = function (_ref) {
 	return section('#ui', [header([h1([i('.fa.fa-database'), ' mongoAdmin '])]), leftPane({ state: state, actions: actions }), content({ state: state, actions: actions })]);
 };
 
-},{"./content":40,"./left-pane":42,"iblokz-snabbdom-helpers":12,"vex-dialog":33,"vex-js":34}],42:[function(require,module,exports){
+},{"./content":40,"./left-pane":42,"iblokz-snabbdom-helpers":12}],42:[function(require,module,exports){
 'use strict';
 
 var vex = require('vex-js');
@@ -18134,23 +18130,58 @@ module.exports = function (_ref) {
 },{"iblokz-snabbdom-helpers":12,"vex-js":34}],43:[function(require,module,exports){
 'use strict';
 
+// lib
+
 var Rx = require('rx');
 var $ = Rx.Observable;
-var superagent = require('superagent');
 
-superagent.Request.prototype.observe = function () {
-	return $.fromNodeCallback(this.end, this)();
+var _require = require('iblokz-data'),
+    arr = _require.arr,
+    obj = _require.obj;
+
+var observe = function observe(source) {
+	return source instanceof Rx.Observable ? source : source.then instanceof Function ? Rx.Observable.fromPromise(source) : Rx.Observable.just(source);
 };
 
-module.exports = superagent;
+var adapt = function adapt(o) {
+	return Object.keys(o).filter(function (key) {
+		return key !== 'initial';
+	}).reduce(function (o2, key) {
+		return Object.assign({}, o2, o[key] instanceof Function && obj.keyValue(key, function () {
+			observe(o[key].apply(null, Array.from(arguments))).subscribe(function (resp) {
+				return o2.stream.onNext(resp);
+			});
+		}) || o[key] instanceof Object && function () {
+			var o3 = adapt(o[key]);
+			o3.stream.subscribe(function (resp) {
+				return o2.stream.onNext(resp);
+			});
+			return Object.assign({
+				initial: Object.assign({}, o2.initial, obj.keyValue(key, o3.initial || {}))
+			}, obj.keyValue(key, o3));
+		}() || obj.keyValue(key, o[key]));
+	}, { stream: new Rx.Subject(), initial: o.initial || {} });
+};
 
-},{"rx":14,"superagent":26}],44:[function(require,module,exports){
+module.exports = {
+	adapt: adapt
+};
+
+},{"iblokz-data":7,"rx":14}],44:[function(require,module,exports){
 'use strict';
 
 var $ = require('rx').Observable;
 
 var _require = require('iblokz-data'),
     fn = _require.fn;
+
+var storeType = (window.location.search.match(/store=([a-z]+)/i) || ['http']).pop();
+
+var getAgent = function getAgent(type) {
+	return type === 'ipc' ? window.require('electron').ipcRenderer : require('superagent');
+};
+
+var baseUrl = window.location.origin + '/api';
 
 var ipcHook = function ipcHook(ipc, action, resourse, path, data) {
 	ipc.send(action + ' ' + resourse, path, data);
@@ -18161,32 +18192,40 @@ var ipcHook = function ipcHook(ipc, action, resourse, path, data) {
 	});
 };
 
-var init = function init(_ref) {
-	var type = _ref.type,
+var init = function init() {
+	var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { type: storeType, agent: getAgent(storeType), url: baseUrl },
+	    type = _ref.type,
 	    agent = _ref.agent,
 	    url = _ref.url;
+
 	return fn.switch(type, {
 		http: function http(_ref2) {
 			var path = _ref2.path;
 			return {
 				list: function list() {
-					return agent.get(url + '/' + path).observe().map(function (res) {
+					return $.fromPromise(agent.get(url + '/' + path).then(function (res) {
 						return res.body;
-					});
+					}));
 				},
 				create: function create(doc) {
-					return agent.post(url + '/' + path).send(doc).observe();
+					return $.fromPromise(agent.post(url + '/' + path).send(doc).then(function (res) {
+						return res.body;
+					}));
 				},
 				read: function read(id) {
-					return agent.get(url + '/' + path + '/' + id).observe().map(function (res) {
+					return $.fromPromise(agent.get(url + '/' + path + '/' + id).then(function (res) {
 						return res.body;
-					});
+					}));
 				},
 				update: function update(id, doc) {
-					return agent.put(url + '/' + path + '/' + id).send(doc).observe();
+					return $.fromPromise(agent.put(url + '/' + path + '/' + id).send(doc).then(function (res) {
+						return res.body;
+					}));
 				},
 				delete: function _delete(id) {
-					return agent.delete(url + '/' + path + '/' + id).observe();
+					return $.fromPromise(agent.delete(url + '/' + path + '/' + id).then(function (res) {
+						return res.body;
+					}));
 				}
 			};
 		},
@@ -18218,4 +18257,4 @@ module.exports = {
 	init: init
 };
 
-},{"iblokz-data":7,"rx":14}]},{},[39]);
+},{"iblokz-data":7,"rx":14,"superagent":26}]},{},[39]);

@@ -58,7 +58,8 @@ module.exports = ({state, actions}) => section('#content', [
 			form('#filter', [
 				input({
 					on: {input: el => actions.documents.filter(el.target.value)},
-					attrs: {placeholder: 'Filter'}
+					attrs: {placeholder: 'Filter'},
+					props: {value: state.selection.filter}
 				})
 			]),
 			(state.documents.length > 0) ?

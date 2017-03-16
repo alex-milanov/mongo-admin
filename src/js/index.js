@@ -1,28 +1,52 @@
 'use strict';
 
+// vex code
+const vex = require('vex-js');
+vex.registerPlugin(require('vex-dialog'));
+vex.defaultOptions.className = 'vex-theme-top';
+
 const Rx = require('rx');
 const $ = Rx.Observable;
 
 const vdom = require('iblokz-snabbdom-helpers');
 
-console.log(344);
+// app
+const app = require('./util/app');
+let actions = require('./actions');
+let ui = require('./ui');
 
-// store
-const storeUtil = require('./util/store');
-const storeType = (window.location.search.match(/store=([a-z]+)/i) || ['http']).pop();
-console.log(storeType);
-const store = storeUtil.init(Object.assign({type: storeType}, (storeType === 'ipc')
-	? {agent: window.require('electron').ipcRenderer}
-	: {agent: require('./util/request'), url: 'http://localhost:8080/api'}
-));
+// prep actions
+let actions$ = new Rx.Subject();
+actions = app.adapt(actions);
+actions.stream.subscribe(actions$);
+console.log(actions);
 
-const actions = require('./actions')(store);
+// hot reloading
+if (module.hot) {
+	// actions
+	$.fromEventPattern(
+    h => module.hot.accept("./actions", h)
+	)
+		.subscribe(() => {
+			actions = app.adapt(require('./actions'));
+			actions.stream.subscribe(actions$);
+			actions$.onNext(state => state);
+		});
+	// ui
+	module.hot.accept("./ui", function() {
+		ui = require('./ui');
+		actions$.onNext(state => state);
+	});
+}
 
-const ui = require('./ui');
+actions.dbs.list();
 
-const state$ = actions.stream
+// actions -> state
+const state$ = actions$
+	.startWith(() => actions.initial)
 	.scan((state, change) => change(state), {})
-	.distinctUntilChanged(state => state);
+	.map(state => (console.log(state), state))
+	.share();
 
 // hooks
 // on db change list collections
